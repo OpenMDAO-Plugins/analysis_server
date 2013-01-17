@@ -11,14 +11,12 @@ from configured resources based on component requirements.
 Separate log files for each client connection are written to the ``logs``
 directory. Log files are named ``<hostIP>_<port>.txt``.
 
-Component types may be added remotely via the `publish.py` tool. Multiple
+Component types may be added remotely via the ``publish.py`` tool. Multiple
 versions of the same component name are allowed. You cannot modify or remove
 component types remotely.
 
 Component types to be supported are described by ``<name>.cfg`` files parsed
-by :class:`ConfigParser.SafeConfigParser`, for example:
-
-.. parsed-literal::
+by :class:`ConfigParser.SafeConfigParser`, for example::
 
     [Description]
     # Metadata describing the component.
