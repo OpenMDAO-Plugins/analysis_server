@@ -1,0 +1,4 @@
+sphinx_build/
+openmdao_log.txt
+*.egg-info
+*.pyc

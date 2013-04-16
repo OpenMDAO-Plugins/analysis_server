@@ -28,7 +28,7 @@ from openmdao.main.attrwrapper import AttrWrapper
 from openmdao.main.mp_support import is_instance
 
 from openmdao.lib.datatypes.api import Array, Bool, Enum, File, Float, Int, \
-                                       List, Str
+                                       List, Str, VarTree
 
 from analysis_server.monitor import FileMonitor
 from analysis_server.objxml import get_as_xml, set_from_xml
@@ -1938,4 +1938,5 @@ class ObjWrapper(BaseWrapper):
                 'description (type=java.lang.String) (access=g)')
 
 _register(Container, ObjWrapper)
+_register(VarTree, ObjWrapper)
 
