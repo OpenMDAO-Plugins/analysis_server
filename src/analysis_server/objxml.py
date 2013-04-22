@@ -8,7 +8,8 @@ from xml.sax.saxutils import escape
 
 from openmdao.main.api import Container, VariableTree
 from openmdao.main.mp_support import is_instance
-from openmdao.main.datatypes.api import Array, Bool, Enum, Float, Int, List, Str
+from openmdao.main.datatypes.api import Array, Bool, Enum, Float, Int, List, \
+                                        Str, VarTree
 
 from analysis_server.units import get_translation
 
@@ -672,8 +673,9 @@ def _add_str(vartree, member, props):
 def _add_object(vartree, member):
     """ Helper for :meth:`_populate_from_xml`. """
     name = member.attrib['name']
-    obj = vartree.add(name, VariableTree(iotype=vartree.iotype))
-    _populate_from_xml(obj, member)  # Recurse.
+    newtree = VariableTree(iotype=vartree.iotype)
+    vartree.add(name, VarTree(newtree))
+    _populate_from_xml(newtree, member)  # Recurse.
 
 
 
