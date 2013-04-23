@@ -5,58 +5,55 @@ from openmdao.main.api import Assembly, Component, Container, FileRef, \
 from openmdao.main.rbac import rbac
 
 from openmdao.main.datatypes.api import Array, Bool, Enum, File, Float, \
-                                        Int, List, Str
+                                        Int, List, Str, VarTree
 
 class SubObj(VariableTree):
     """ Sub-object under TopObject. """
 
-    def __init__(self, *args, **kwargs):
-        super(SubObj, self).__init__(*args, **kwargs)
-        self.add('sob', Bool(False))
-        self.add('sof', Float(0.284, units='lb/inch**3'))
-        self.add('soi', Int(3))
-        self.add('sos', Str('World'))
+    sob = Bool(False)
+    sof = Float(0.284, units='lb/inch**3')
+    soi = Int(3)
+    sos = Str('World')
 
 
 class TopObj(VariableTree):
     """ Top-level object variable. """
 
-    def __init__(self, *args, **kwargs):
-        super(TopObj, self).__init__(*args, **kwargs)
-        self.add('subobj', SubObj(iotype=kwargs['iotype']))
-        self.add('tob', Bool(True))
-        self.add('tof', Float(0.5, units='inch'))
-        self.add('toi', Int(42))
-        self.add('tos', Str('Hello'))
-        self.add('tofe', Enum(values=(2.781828, 3.14159),
-                              aliases=('e', 'pi'), desc='Float enum', units='m'))
-        self.add('toie', Enum(values=(9, 8, 7, 1), desc='Int enum'))
-        self.add('tose', Enum(values=('cold', 'hot', 'nice'), desc='Str enum'))
+    tob = Bool(True)
+    tof = Float(0.5, units='inch')
+    toi = Int(42)
+    tos = Str('Hello')
+    tofe = Enum(values=(2.781828, 3.14159),
+                aliases=('e', 'pi'), desc='Float enum', units='m')
+    toie = Enum(values=(9, 8, 7, 1), desc='Int enum')
+    tose = Enum(values=('cold', 'hot', 'nice'), desc='Str enum')
 
-        self.add('tof1d', Array(dtype=float, desc='1D float array', units='cm',
-                                default_value=[1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5],
-                                low=0, high=10))
+    tof1d = Array(dtype=float, desc='1D float array', units='cm',
+                  default_value=[1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5],
+                  low=0, high=10)
 
-        self.add('tof2d', Array(dtype=float, desc='2D float array', units='mm',
-                                default_value=[ [1.5, 2.5, 3.5, 4.5],
-                                                [5.5, 6.5, 7.5, 8.5] ]))
+    tof2d = Array(dtype=float, desc='2D float array', units='mm',
+                  default_value=[ [1.5, 2.5, 3.5, 4.5],
+                                  [5.5, 6.5, 7.5, 8.5] ])
 
-        self.add('tof3d', Array(dtype=float, desc='3D float array',
-                                default_value=[ [ [1.5, 2.5, 3.5],
-                                                  [4.5, 5.5, 6.5],
-                                                  [7.5, 8.5, 9.5] ],
-                                                [ [10.5, 20.5, 30.5],
-                                                  [40.5, 50.5, 60.5],
-                                                  [70.5, 80.5, 90.5] ] ]))
+    tof3d = Array(dtype=float, desc='3D float array',
+                  default_value=[ [ [1.5, 2.5, 3.5],
+                                    [4.5, 5.5, 6.5],
+                                    [7.5, 8.5, 9.5] ],
+                                  [ [10.5, 20.5, 30.5],
+                                    [40.5, 50.5, 60.5],
+                                    [70.5, 80.5, 90.5] ] ])
 
-        self.add('toi1d', Array(dtype=int, desc='1D int array',
-                                default_value=[1, 2, 3, 4, 5, 6, 7, 8, 9]))
+    toi1d = Array(dtype=int, desc='1D int array',
+                  default_value=[1, 2, 3, 4, 5, 6, 7, 8, 9])
 
-        self.add('tos1d', List(Str, desc='1D string array',
-                               value=['Hello', 'from', 'TestComponent.tos1d']))
+    tos1d = List(Str, desc='1D string array',
+                 value=['Hello', 'from', 'TestComponent.tos1d'])
 
-        self.add('toflst', List(Float, desc='Float list'))
-        self.add('toilst', List(Int, desc='Int list'))
+    toflst = List(Float, desc='Float list')
+    toilst = List(Int, desc='Int list')
+
+    subobj = VarTree(SubObj())
 
 
 class TestComponent(Component):
@@ -71,11 +68,12 @@ class TestComponent(Component):
     in_file = File(iotype='in', local_path='inFile.dat', desc='Input file')
     out_file = File(iotype='out', path='outFile.dat', desc='Output file')
 
+    obj_input = VarTree(TopObj(iotype='in'))
+    obj_output = VarTree(TopObj(iotype='out'))
+
     def __init__(self):
         super(TestComponent, self).__init__()
         self.add('sub_group', SubGroup())
-        self.add('obj_input', TopObj(iotype='in'))
-        self.add('obj_output', TopObj(iotype='out'))
 
     def execute(self):
         if self.x < 0:

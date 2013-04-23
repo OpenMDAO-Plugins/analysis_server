@@ -87,46 +87,37 @@ class ComponentProxy(Component):
             if typ == 'PHXDouble' or typ == 'PHXLong' or typ == 'PHXString':
                 enum_valstrs = self._client.get(rpath+'.enumValues')
                 if enum_valstrs:
-                    container.add_trait(prop,
-                                        EnumProxy(iotype, self._client, rpath,
-                                                  typ, enum_valstrs))
+                    container.add(prop,
+                                  EnumProxy(iotype, self._client, rpath,
+                                            typ, enum_valstrs))
                     continue
 
             if typ == 'PHXBoolean':
-                container.add_trait(prop,
-                                    BoolProxy(iotype, self._client, rpath))
+                container.add(prop, BoolProxy(iotype, self._client, rpath))
             elif typ == 'PHXDouble':
-                container.add_trait(prop,
-                                    FloatProxy(iotype, self._client, rpath))
+                container.add(prop, FloatProxy(iotype, self._client, rpath))
             elif typ == 'PHXLong':
-                container.add_trait(prop,
-                                    IntProxy(iotype, self._client, rpath))
+                container.add(prop, IntProxy(iotype, self._client, rpath))
             elif typ == 'PHXRawFile':
-                container.add_trait(prop,
-                                    FileProxy(iotype, self._client, rpath,
+                container.add(prop, FileProxy(iotype, self._client, rpath,
                                               self))
             elif typ == 'PHXString':
-                container.add_trait(prop,
-                                    StrProxy(iotype, self._client, rpath))
+                container.add(prop, StrProxy(iotype, self._client, rpath))
             elif typ == 'PHXGroup':
                 group = container.add(prop, Container())
                 self._populate(group, rpath)  # Recurse.
 
             elif typ.startswith('double['):
-                container.add_trait(prop,
-                                    ArrayProxy(iotype, self._client, rpath,
+                container.add(prop, ArrayProxy(iotype, self._client, rpath,
                                                float))
             elif typ.startswith('long['):
-                container.add_trait(prop,
-                                    ArrayProxy(iotype, self._client, rpath,
+                container.add(prop, ArrayProxy(iotype, self._client, rpath,
                                                int))
             elif typ.startswith('java.lang.String['):
-                container.add_trait(prop,
-                                    ListProxy(iotype, self._client, rpath,
+                container.add(prop, ListProxy(iotype, self._client, rpath,
                                               str))
             elif typ == 'PHXScriptObject':
-                container.add(prop,
-                              ObjProxy(iotype, self._client, rpath))
+                container.add(prop, ObjProxy(iotype, self._client, rpath))
             else:
                 raise NotImplementedError('%r type %r' % (prop, typ))
 
