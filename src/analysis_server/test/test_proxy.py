@@ -10,9 +10,9 @@ import unittest
 
 from numpy.testing import assert_array_equal
 
-from openmdao.main.api import Assembly, Component, FileRef, set_as_top
+from openmdao.main.api import Assembly, Component, set_as_top
 from openmdao.main.resource import ResourceAllocationManager as RAM
-from openmdao.lib.datatypes.api import File, Float, Str
+from openmdao.lib.datatypes.api import File, FileRef, Float, Str
 from openmdao.util.testutil import assert_raises
 
 import analysis_server
@@ -50,7 +50,7 @@ class Source(Component):
     y = Float(iotype='out')
     tof = Float(iotype='out')
     sof = Float(iotype='out')
-    output = File(path='output', iotype='out')
+    output = File(FileRef('output'), iotype='out')
 
     def execute(self):
         self.x = 6
