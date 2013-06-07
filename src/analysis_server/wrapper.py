@@ -23,12 +23,12 @@ try:
 except ImportError:  # pragma no cover
     pass  # Not available on Windows.
 
-from openmdao.main.api import Container, FileRef
+from openmdao.main.api import Container
 from openmdao.main.attrwrapper import AttrWrapper
 from openmdao.main.mp_support import is_instance
 
-from openmdao.lib.datatypes.api import Array, Bool, Enum, File, Float, Int, \
-                                       List, Str, VarTree
+from openmdao.lib.datatypes.api import Array, Bool, Enum, File, FileRef, \
+                                       Float, Int, List, Str, VarTree
 
 from analysis_server.monitor import FileMonitor
 from analysis_server.objxml import get_as_xml, set_from_xml
@@ -1491,7 +1491,7 @@ class FileWrapper(BaseWrapper):
             else:  # pragma no cover
                 with self._server.open(filename, mode) as out:
                     out.write(valstr)
-            file_ref = FileRef(path=filename, owner=self._owner)
+            file_ref = FileRef(filename, owner=self._owner)
             self._container.set(self._name, file_ref)
         elif attr in ('description', 'isBinary', 'mimeType',
                       'name', 'nameCoded', 'url'):

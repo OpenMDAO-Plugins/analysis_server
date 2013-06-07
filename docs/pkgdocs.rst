@@ -14,12 +14,12 @@ Package Metadata
 
     [openmdao.variable]
     analysis_server.proxy.EnumProxy=analysis_server.proxy:EnumProxy
+    analysis_server.proxy.ListProxy=analysis_server.proxy:ListProxy
     analysis_server.proxy.BoolProxy=analysis_server.proxy:BoolProxy
     analysis_server.proxy.IntProxy=analysis_server.proxy:IntProxy
     analysis_server.proxy.StrProxy=analysis_server.proxy:StrProxy
     analysis_server.proxy.ArrayProxy=analysis_server.proxy:ArrayProxy
     analysis_server.proxy.FloatProxy=analysis_server.proxy:FloatProxy
-    analysis_server.proxy.ListProxy=analysis_server.proxy:ListProxy
     analysis_server.proxy.FileProxy=analysis_server.proxy:FileProxy
     [openmdao.component]
     analysis_server.proxy.ComponentProxy=analysis_server.proxy:ComponentProxy
@@ -42,5 +42,5 @@ Package Metadata
 
 - **summary:** OpenMDAO interface to Phoenix Integration's ModelCenter/AnalysisServer
 
-- **version:** 0.2
+- **version:** 0.3
 

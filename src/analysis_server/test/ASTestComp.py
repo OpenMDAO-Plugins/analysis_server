@@ -1,11 +1,10 @@
 import sys
 
-from openmdao.main.api import Assembly, Component, Container, FileRef, \
-                              VariableTree
+from openmdao.main.api import Assembly, Component, Container, VariableTree
 from openmdao.main.rbac import rbac
 
-from openmdao.main.datatypes.api import Array, Bool, Enum, File, Float, \
-                                        Int, List, Str, VarTree
+from openmdao.main.datatypes.api import Array, Bool, Enum, File, FileRef, \
+                                        Float, Int, List, Str, VarTree
 
 class SubObj(VariableTree):
     """ Sub-object under TopObject. """
@@ -66,7 +65,7 @@ class TestComponent(Component):
     exe_count = Int(iotype='out', desc='Execution count')
 
     in_file = File(iotype='in', local_path='inFile.dat', desc='Input file')
-    out_file = File(iotype='out', path='outFile.dat', desc='Output file')
+    out_file = File(FileRef('outFile.dat'), iotype='out', desc='Output file')
 
     obj_input = VarTree(TopObj(iotype='in'))
     obj_output = VarTree(TopObj(iotype='out'))
@@ -187,7 +186,7 @@ class Bogus(object):
 if __name__ == '__main__':
     top = Assembly()
     comp = top.add('comp', TestComponent())
-    comp.in_file = FileRef(path='ASTestComp-0.1.cfg', owner=top)
+    comp.in_file = FileRef('ASTestComp-0.1.cfg', owner=top, platform=sys.platform)
     comp.run()
     for path in ('x', 'y', 'z', 'exe_count',
                  'sub_group.b', 'sub_group.f', 'sub_group.i', 'sub_group.s',
