@@ -9,12 +9,12 @@ Source Documentation
         
 .. index:: client.py
 
-.. _src.analysis_server.client.py:
+.. _analysis_server.client.py:
 
 client.py
 ---------
 
-.. automodule:: src.analysis_server.client
+.. automodule:: analysis_server.client
    :members:
    :undoc-members:
    :show-inheritance:
@@ -22,12 +22,12 @@ client.py
         
 .. index:: factory.py
 
-.. _src.analysis_server.factory.py:
+.. _analysis_server.factory.py:
 
 factory.py
 ----------
 
-.. automodule:: src.analysis_server.factory
+.. automodule:: analysis_server.factory
    :members:
    :undoc-members:
    :show-inheritance:
@@ -35,12 +35,12 @@ factory.py
         
 .. index:: monitor.py
 
-.. _src.analysis_server.monitor.py:
+.. _analysis_server.monitor.py:
 
 monitor.py
 ----------
 
-.. automodule:: src.analysis_server.monitor
+.. automodule:: analysis_server.monitor
    :members:
    :undoc-members:
    :show-inheritance:
@@ -48,12 +48,12 @@ monitor.py
         
 .. index:: objxml.py
 
-.. _src.analysis_server.objxml.py:
+.. _analysis_server.objxml.py:
 
 objxml.py
 ---------
 
-.. automodule:: src.analysis_server.objxml
+.. automodule:: analysis_server.objxml
    :members:
    :undoc-members:
    :show-inheritance:
@@ -61,12 +61,12 @@ objxml.py
         
 .. index:: proxy.py
 
-.. _src.analysis_server.proxy.py:
+.. _analysis_server.proxy.py:
 
 proxy.py
 --------
 
-.. automodule:: src.analysis_server.proxy
+.. automodule:: analysis_server.proxy
    :members:
    :undoc-members:
    :show-inheritance:
@@ -74,12 +74,12 @@ proxy.py
         
 .. index:: publish.py
 
-.. _src.analysis_server.publish.py:
+.. _analysis_server.publish.py:
 
 publish.py
 ----------
 
-.. automodule:: src.analysis_server.publish
+.. automodule:: analysis_server.publish
    :members:
    :undoc-members:
    :show-inheritance:
@@ -87,12 +87,12 @@ publish.py
         
 .. index:: server.py
 
-.. _src.analysis_server.server.py:
+.. _analysis_server.server.py:
 
 server.py
 ---------
 
-.. automodule:: src.analysis_server.server
+.. automodule:: analysis_server.server
    :members:
    :undoc-members:
    :show-inheritance:
@@ -100,12 +100,12 @@ server.py
         
 .. index:: sniffer.py
 
-.. _src.analysis_server.sniffer.py:
+.. _analysis_server.sniffer.py:
 
 sniffer.py
 ----------
 
-.. automodule:: src.analysis_server.sniffer
+.. automodule:: analysis_server.sniffer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -113,12 +113,12 @@ sniffer.py
         
 .. index:: stream.py
 
-.. _src.analysis_server.stream.py:
+.. _analysis_server.stream.py:
 
 stream.py
 ---------
 
-.. automodule:: src.analysis_server.stream
+.. automodule:: analysis_server.stream
    :members:
    :undoc-members:
    :show-inheritance:
@@ -126,12 +126,12 @@ stream.py
         
 .. index:: ASTestComp.py
 
-.. _src.analysis_server.test.ASTestComp.py:
+.. _analysis_server.test.ASTestComp.py:
 
 ASTestComp.py
 -------------
 
-.. automodule:: src.analysis_server.test.ASTestComp
+.. automodule:: analysis_server.test.ASTestComp
    :members:
    :undoc-members:
    :show-inheritance:
@@ -139,12 +139,12 @@ ASTestComp.py
         
 .. index:: test_client.py
 
-.. _src.analysis_server.test.test_client.py:
+.. _analysis_server.test.test_client.py:
 
 test_client.py
 --------------
 
-.. automodule:: src.analysis_server.test.test_client
+.. automodule:: analysis_server.test.test_client
    :members:
    :undoc-members:
    :show-inheritance:
@@ -152,12 +152,12 @@ test_client.py
         
 .. index:: test_proxy.py
 
-.. _src.analysis_server.test.test_proxy.py:
+.. _analysis_server.test.test_proxy.py:
 
 test_proxy.py
 -------------
 
-.. automodule:: src.analysis_server.test.test_proxy
+.. automodule:: analysis_server.test.test_proxy
    :members:
    :undoc-members:
    :show-inheritance:
@@ -165,12 +165,12 @@ test_proxy.py
         
 .. index:: test_server.py
 
-.. _src.analysis_server.test.test_server.py:
+.. _analysis_server.test.test_server.py:
 
 test_server.py
 --------------
 
-.. automodule:: src.analysis_server.test.test_server
+.. automodule:: analysis_server.test.test_server
    :members:
    :undoc-members:
    :show-inheritance:
@@ -178,12 +178,12 @@ test_server.py
         
 .. index:: units.py
 
-.. _src.analysis_server.units.py:
+.. _analysis_server.units.py:
 
 units.py
 --------
 
-.. automodule:: src.analysis_server.units
+.. automodule:: analysis_server.units
    :members:
    :undoc-members:
    :show-inheritance:
@@ -191,12 +191,12 @@ units.py
         
 .. index:: wrapper.py
 
-.. _src.analysis_server.wrapper.py:
+.. _analysis_server.wrapper.py:
 
 wrapper.py
 ----------
 
-.. automodule:: src.analysis_server.wrapper
+.. automodule:: analysis_server.wrapper
    :members:
    :undoc-members:
    :show-inheritance:

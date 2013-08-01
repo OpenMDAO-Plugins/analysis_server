@@ -22,10 +22,21 @@ Package Metadata
     analysis_server.proxy.FloatProxy=analysis_server.proxy:FloatProxy
     analysis_server.proxy.FileProxy=analysis_server.proxy:FileProxy
     [openmdao.component]
+    analysis_server.test.test_proxy.Sink=analysis_server.test.test_proxy:Sink
     analysis_server.proxy.ComponentProxy=analysis_server.proxy:ComponentProxy
+    analysis_server.test.ASTestComp.TestComponent=analysis_server.test.ASTestComp:TestComponent
+    analysis_server.test.test_proxy.Source=analysis_server.test.test_proxy:Source
+    analysis_server.test.test_proxy.Model=analysis_server.test.test_proxy:Model
     [openmdao.container]
     analysis_server.proxy.ObjProxy=analysis_server.proxy:ObjProxy
+    analysis_server.test.test_proxy.Sink=analysis_server.test.test_proxy:Sink
     analysis_server.proxy.ComponentProxy=analysis_server.proxy:ComponentProxy
+    analysis_server.test.ASTestComp.SubObj=analysis_server.test.ASTestComp:SubObj
+    analysis_server.test.ASTestComp.TopObj=analysis_server.test.ASTestComp:TopObj
+    analysis_server.test.ASTestComp.SubGroup=analysis_server.test.ASTestComp:SubGroup
+    analysis_server.test.ASTestComp.TestComponent=analysis_server.test.ASTestComp:TestComponent
+    analysis_server.test.test_proxy.Source=analysis_server.test.test_proxy:Source
+    analysis_server.test.test_proxy.Model=analysis_server.test.test_proxy:Model
 
 - **keywords:** openmdao
 
@@ -42,5 +53,5 @@ Package Metadata
 
 - **summary:** OpenMDAO interface to Phoenix Integration's ModelCenter/AnalysisServer
 
-- **version:** 0.3
+- **version:** 0.4
 
