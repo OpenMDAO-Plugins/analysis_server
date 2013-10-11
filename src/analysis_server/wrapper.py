@@ -16,7 +16,10 @@ import time
 import xml.etree.cElementTree as ElementTree
 from xml.sax.saxutils import escape, quoteattr
 
-from traits.trait_handlers import TraitCoerceType
+try:
+    from traits.trait_handlers import TraitCoerceType
+except ImportError:
+    from enthought.traits.trait_handlers import TraitCoerceType
 
 try:
     import resource

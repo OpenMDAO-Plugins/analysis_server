@@ -398,7 +398,8 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             orphan_path = os.path.join(filename, 'EGG-INFO',
                                        'openmdao_orphans.txt')
             with open(orphan_path, 'rU') as inp:
-                orphans = [line.strip() for line in inp.readlines()]
+                orphans = [line.strip() for line in inp.readlines()
+                                                 if line.strip()]
             return (os.path.join(os.getcwd(), egg), requirements, orphans)
 
         raise RuntimeError("Can't find EGG-INFO for %r" % egg)

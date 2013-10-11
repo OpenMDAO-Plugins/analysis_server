@@ -8,7 +8,10 @@ the component proxy is built.
 import numpy
 import types
 
-from traits.api import TraitError
+try:
+    from traits.api import TraitError
+except ImportError:
+    from enthought.traits.api import TraitError
 
 from openmdao.main.api import Component, Container, VariableTree
 from openmdao.main.mp_support import is_instance
