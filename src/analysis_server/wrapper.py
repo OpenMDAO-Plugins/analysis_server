@@ -16,6 +16,8 @@ import time
 import xml.etree.cElementTree as ElementTree
 from xml.sax.saxutils import escape, quoteattr
 
+from multiprocessing.managers import RemoteError
+
 try:
     from traits.trait_handlers import TraitCoerceType
 except ImportError:
@@ -1392,6 +1394,12 @@ class FileWrapper(BaseWrapper):
             except IOError as exc:
                 self._logger.warning('get %s.value: %r', path, exc)
                 return ''
+            except RemoteError as exc:
+                if 'IOError' in str(exc):
+                    self._logger.warning('get %s.value: %r', path, exc)
+                    return ''
+                else:
+                    raise
             else:
                 return data.encode('string_escape')
         elif attr == 'isBinary':
@@ -1439,6 +1447,13 @@ class FileWrapper(BaseWrapper):
                     self._logger.warning('get %s.value: %r',
                                          self._ext_path, exc)
                     data = ''
+                except RemoteError as exc:
+                    if 'IOError' in str(exc):
+                        self._logger.warning('get %s.value: %r',
+                                             self._ext_path, exc)
+                        data = ''
+                    else:
+                        raise
                 else:
                     data = base64.b64encode(data.getvalue())
             zipped = ' gzipped="true"'

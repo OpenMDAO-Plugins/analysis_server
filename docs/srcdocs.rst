@@ -137,58 +137,6 @@ ASTestComp.py
    :show-inheritance:
 
         
-.. index:: ASTestComp.py
-
-.. _analysis_server.test.Sim-1.ASTestComp.ASTestComp.py:
-
-ASTestComp.py
--------------
-
-.. automodule:: analysis_server.test.Sim-1.ASTestComp.ASTestComp
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-        
-.. index:: ASTestComp_loader.py
-
-.. _analysis_server.test.Sim-1.ASTestComp.ASTestComp_loader.py:
-
-ASTestComp_loader.py
---------------------
-
-.. automodule:: analysis_server.test.Sim-1.ASTestComp.ASTestComp_loader
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-        
-.. index:: ASTestComp.py
-
-.. _analysis_server.test.Sim-1_2.ASTestComp.ASTestComp.py:
-
-ASTestComp.py
--------------
-
-.. automodule:: analysis_server.test.Sim-1_2.ASTestComp.ASTestComp
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-        
-.. index:: ASTestComp_loader.py
-
-.. _analysis_server.test.Sim-1_2.ASTestComp.ASTestComp_loader.py:
-
-ASTestComp_loader.py
---------------------
-
-.. automodule:: analysis_server.test.Sim-1_2.ASTestComp.ASTestComp_loader
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-        
 .. index:: test_client.py
 
 .. _analysis_server.test.test_client.py:
