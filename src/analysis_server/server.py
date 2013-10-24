@@ -211,6 +211,7 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
                     try:
                         self.read_config(path, _LOGGER)
                     except Exception as exc:
+                        print str(exc) or repr(exc)
                         _LOGGER.error(str(exc) or repr(exc))
                         self._config_errors += 1
 
@@ -2035,7 +2036,8 @@ def start_server(address='localhost', port=DEFAULT_PORT, allowed_hosts=None,
         return_code = proc.poll()
         if return_code:
             error_msg = proc.error_message(return_code)
-            raise RuntimeError('Server startup failed %s' % error_msg)
+            raise RuntimeError('Server startup failed: exit code %s (%s)'
+                               % (return_code, error_msg))
         retry += 1
         if retry < 10*timeout:
             time.sleep(.1)
