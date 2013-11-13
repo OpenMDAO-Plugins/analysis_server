@@ -6,10 +6,13 @@ the component proxy is built.
 """
 
 import numpy
-import socket
+import os
 import types
 
-from enthought.traits.api import TraitError
+try:
+    from traits.api import TraitError
+except ImportError:
+    from enthought.traits.api import TraitError
 
 from openmdao.main.api import Component, Container, VariableTree
 from openmdao.main.mp_support import is_instance
@@ -34,11 +37,6 @@ class ComponentProxy(Component):
     The proxy will populate itself with proxies for all variables exposed
     by the remote component, in an identical hierarchy.
 
-    .. note::
-        While variable attributes like 'units' are read from the remote
-        component, attempts to set attributes other than 'value' from the local
-        side will have no effect on the remote side.
-
     typname: string
         Component type.
 
@@ -47,6 +45,14 @@ class ComponentProxy(Component):
 
     port: int
         Port on `host` used by server.
+
+    Communications between the proxy and AnalysisServer can be traced
+    by setting environment variable ``AS_TRACE_PROXY`` to ``1``.
+
+    .. note::
+        While variable attributes like 'units' are read from the remote
+        component, attempts to set attributes other than 'value' from the local
+        side will have no effect on the remote side.
     """
 
     def __init__(self, typname, host, port):
@@ -55,7 +61,8 @@ class ComponentProxy(Component):
         self._host = host
         self._port = port
 
-        self._client = Client(host, port)
+        trace = bool(os.environ.get('AS_TRACE_PROXY'))
+        self._client = Client(host, port, trace)
         self._client.start(typname, self._objname)
         super(ComponentProxy, self).__init__()
 
@@ -119,7 +126,8 @@ class ComponentProxy(Component):
             elif typ == 'PHXScriptObject':
                 container.add(prop, ObjProxy(iotype, self._client, rpath))
             else:
-                raise NotImplementedError('%r type %r' % (prop, typ))
+                self._logger.warning('Unsupported property: %r type %r',
+                                     prop, typ)
 
     def _add_methods(self):
         """ Add methods to invoke remote methods. """

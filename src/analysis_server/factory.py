@@ -1,3 +1,5 @@
+import os
+
 from openmdao.main.factory import Factory
 
 from analysis_server import client, proxy, server
@@ -14,13 +16,17 @@ class ASFactory(Factory):
 
     port: int
         Port number of the AnalysisServer to connect to.
+
+    Communications between the factory and AnalysisServer can be traced
+    by setting environment variable ``AS_TRACE_FACTORY`` to ``1``.
     """
 
     def __init__(self, host='localhost', port=server.DEFAULT_PORT):
         super(ASFactory, self).__init__()
         self._host = host
         self._port = port
-        self._client = client.Client(host, port)
+        trace = bool(os.environ.get('AS_TRACE_FACTORY'))
+        self._client = client.Client(host, port, trace)
 
     def shutdown(self):
         """ Shutdown factory. """
