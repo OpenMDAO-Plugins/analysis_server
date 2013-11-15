@@ -17,7 +17,7 @@ except ImportError:
 from openmdao.main.api import Component, Container, VariableTree
 from openmdao.main.mp_support import is_instance
 from openmdao.main.datatypes.api import Array, Bool, Enum, File, FileRef, \
-                                        Float, Int, List, Str
+                                        Float, Int, List, Str, VarTree
 
 from analysis_server.client import Client
 from analysis_server.objxml import get_as_xml, set_from_xml, populate_from_xml
@@ -124,7 +124,7 @@ class ComponentProxy(Component):
                 container.add(prop, ListProxy(iotype, self._client, rpath,
                                               str))
             elif typ == 'PHXScriptObject':
-                container.add(prop, ObjProxy(iotype, self._client, rpath))
+                container.add(prop, VarTree(ObjProxy(iotype, self._client, rpath)))
             else:
                 self._logger.warning('Unsupported property: %r type %r',
                                      prop, typ)
@@ -178,7 +178,7 @@ def %s(self):
 
         for name, obj in container.items():
             if is_instance(obj, Container):
-                if isinstance(obj, VarTreeMixin):
+                if isinstance(obj, ObjProxy):
                     obj.restore(self._client)
                 else:
                     self._restore(obj)  # Recurse.
@@ -870,10 +870,9 @@ class StrProxy(ProxyMixin, Str):
                   self.validate(obj, name, value).encode('string_escape'))
 
 
-class VarTreeMixin(object):
+class ObjProxy(VariableTree):
     """
-    Add and override some VariableTree methods to support proxying
-    a remote 'PHXScriptObject'.
+    Proxy for a remote 'PHXScriptObject'.
 
     iotype: string
         'in' or 'out'.
@@ -886,25 +885,32 @@ class VarTreeMixin(object):
     """
 
     def __init__(self, iotype, client, rpath):
+        super(ObjProxy, self).__init__(iotype=iotype)
+
         self._iotype = iotype
         self._client = client
         self._rpath = rpath
         self._valstr = client.get(rpath)  # Needed for later restore.
         self._dirty = False  # Set True after something is modified,
 
+        self.__doc__ = client.get(rpath+'.description')
+        xml = client.get(rpath)
+        populate_from_xml(self, xml)
+        self._dirty = False
+
     def __getstate__(self):
         """ Return state of object. """
-        state = VariableTree.__getstate__(self)
+        state = super(ObjProxy, self).__getstate__()
         state['_client'] = None
         return state
 
     def __setstate__(self, state):
         """ Set state of object from `state`. """
-        VariableTree.__setstate__(self, state)
+        super(ObjProxy, self).__setstate__(state)
 
     def add(self, name, obj):
         """ Overrides VariableTree to manipulate `_dirty` flag. """
-        retval = VariableTree.add(self, name, obj)
+        retval = super(ObjProxy, self).add(name, obj)
         if self._iotype == 'in':
             self.on_trait_change(self._trait_modified, name)
             if isinstance(obj, VariableTree):
@@ -918,7 +924,7 @@ class VarTreeMixin(object):
             self.on_trait_change(self._trait_modified, name)
             if isinstance(obj, VariableTree):
                 self._register(name, obj)
-        
+
     def _trait_modified(self, obj, name, old, new):
         """ Record that local is now different than remote. """
         self._dirty = True
@@ -946,29 +952,6 @@ class VarTreeMixin(object):
         """ Update local from remote. """
         xml = self._client.get(self._rpath)
         set_from_xml(self, xml)
-
-
-class ObjProxy(VarTreeMixin, VariableTree):
-    """
-    Proxy for a remote 'PHXScriptObject'.
-
-    iotype: string
-        'in' or 'out'.
-
-    client: :class:`client.Client`
-        The client to use to access the remote variable.
-
-    rpath: string
-        Path to the remote variable.
-    """
-
-    def __init__(self, iotype, client, rpath):
-        VarTreeMixin.__init__(self, iotype, client, rpath)
-        VariableTree.__init__(self, iotype=iotype)
-        self.__doc__ = client.get(rpath+'.description')
-        xml = client.get(rpath)
-        populate_from_xml(self, xml)
-        self._dirty = False
 
 
 # Currently unused. While the code works, there are issues regarding how

@@ -70,6 +70,7 @@ kwargs = {'author': '',
                                       'sphinx_build/html/_modules/analysis_server/test/test_proxy.html',
                                       'sphinx_build/html/_modules/analysis_server/test/test_server.html',
                                       'sphinx_build/html/_modules/analysis_server/test/ASTestComp.html',
+                                      'test/test.tee',
                                       'test/get_hierarchy64.txt',
                                       'test/__init__.py',
                                       'test/test_client.py',
@@ -86,7 +87,7 @@ kwargs = {'author': '',
  'package_dir': {'': 'src'},
  'packages': ['analysis_server', 'analysis_server.test'],
  'url': '',
- 'version': '0.4.2',
+ 'version': '0.5',
  'zip_safe': False}
 
 
