@@ -87,7 +87,7 @@ kwargs = {'author': '',
  'package_dir': {'': 'src'},
  'packages': ['analysis_server', 'analysis_server.test'],
  'url': '',
- 'version': '0.5',
+ 'version': '0.5.1',
  'zip_safe': False}
 
 
