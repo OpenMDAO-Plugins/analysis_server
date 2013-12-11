@@ -162,10 +162,10 @@ def %s(self):
         """
         Restore client connection and remote state after loading local state.
         """
-        super(ComponentProxy, self).post_load()
         self._client = Client(self._host, self._port)
         self._client.start(self._typname, self._objname)
         self._restore(self)
+        super(ComponentProxy, self).post_load()
 
     def _restore(self, container):
         """ Restore remote state (variables don't have a post_load()). """
