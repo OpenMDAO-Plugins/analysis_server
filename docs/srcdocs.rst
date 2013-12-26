@@ -137,6 +137,19 @@ ASTestComp.py
    :show-inheritance:
 
         
+.. index:: RosenSuzuki.py
+
+.. _analysis_server.test.OptComps.RosenSuzuki.py:
+
+RosenSuzuki.py
+--------------
+
+.. automodule:: analysis_server.test.OptComps.RosenSuzuki
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+        
 .. index:: test_client.py
 
 .. _analysis_server.test.test_client.py:

@@ -4,7 +4,6 @@ import os.path
 import pkg_resources
 import platform
 import shutil
-import socket
 import sys
 import time
 import unittest
@@ -36,8 +35,12 @@ class TestCase(unittest.TestCase):
         self.client.quit()
         analysis_server.stop_server(self.server)
         os.remove('hosts.allow')
+
         for egg in glob.glob('*.egg'):
             os.remove(egg)
+        for egg in glob.glob(os.path.join('OptComps', '*.egg')):
+            os.remove(egg)
+
         for dirname in ('ASTestComp', 'ASTestComp2', 'logs'):
             if os.path.exists(dirname):
                 shutil.rmtree(dirname)
@@ -45,6 +48,13 @@ class TestCase(unittest.TestCase):
             os.remove('as-0.out')
         except WindowsError:
             pass  # Still in use by server...
+
+        # Server enforces versioned config files.
+        original = os.path.join('OptComps', 'RosenSuzuki.cfg')
+        versioned = os.path.join('OptComps', 'RosenSuzuki-0.1.cfg')
+        if os.path.exists(versioned):
+            os.rename(versioned, original)
+
         os.chdir(ORIG_DIR)
 
     def test_add_proxy_clients(self):
@@ -112,7 +122,7 @@ class TestCase(unittest.TestCase):
             'version': '7.0',
             'build': '42968',
             'num clients': '1',
-            'num components': '3',
+            'num components': '4',
             'os name': platform.system(),
             'os arch': platform.processor(),
             'os version': platform.release(),
@@ -201,7 +211,7 @@ version: 7.0, build: 42968"""
 
     def test_list_categories(self):
         result = self.client.list_categories('/')
-        self.assertEqual(result, [])
+        self.assertEqual(result, ['OptComps'])
 
     def test_list_components(self):
         result = self.client.list_components('/')
