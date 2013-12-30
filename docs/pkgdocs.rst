@@ -26,6 +26,7 @@ Package Metadata
     analysis_server.proxy.ComponentProxy=analysis_server.proxy:ComponentProxy
     analysis_server.test.ASTestComp.TestComponent=analysis_server.test.ASTestComp:TestComponent
     analysis_server.test.test_proxy.Sink=analysis_server.test.test_proxy:Sink
+    analysis_server.test.OptComps.RosenSuzuki.PrintEnvironment=analysis_server.test.OptComps.RosenSuzuki:PrintEnvironment
     analysis_server.test.test_proxy.Source=analysis_server.test.test_proxy:Source
     analysis_server.test.test_proxy.Model=analysis_server.test.test_proxy:Model
     [openmdao.container]
@@ -37,6 +38,7 @@ Package Metadata
     analysis_server.test.test_proxy.Sink=analysis_server.test.test_proxy:Sink
     analysis_server.test.ASTestComp.SubGroup=analysis_server.test.ASTestComp:SubGroup
     analysis_server.test.ASTestComp.TestComponent=analysis_server.test.ASTestComp:TestComponent
+    analysis_server.test.OptComps.RosenSuzuki.PrintEnvironment=analysis_server.test.OptComps.RosenSuzuki:PrintEnvironment
     analysis_server.test.test_proxy.Source=analysis_server.test.test_proxy:Source
     analysis_server.test.test_proxy.Model=analysis_server.test.test_proxy:Model
 
@@ -55,5 +57,5 @@ Package Metadata
 
 - **summary:** OpenMDAO interface to Phoenix Integration's ModelCenter/AnalysisServer
 
-- **version:** 0.5.2
+- **version:** 0.6.0
 

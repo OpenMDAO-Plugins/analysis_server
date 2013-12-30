@@ -1,5 +1,6 @@
 from openmdao.main.api import Component
-from openmdao.main.datatypes.api import Array, Float
+from openmdao.main.datatypes.api import Array, Float, Str
+from openmdao.lib.components.api import ExternalCode
 
 
 class RosenSuzuki(Component):
@@ -34,6 +35,8 @@ class RosenSuzuki(Component):
 
     def execute(self):
         """calculate the new objective value"""
+        self._logger.critical('execute: x %s', self.x)
+
         x = self.x
 
         self.result = (x[0]**2 - 5.*x[0] + x[1]**2 - 5.*x[1] +
@@ -45,4 +48,24 @@ class RosenSuzuki(Component):
                      2*x[3]**2 - x[3] - 10)
         self.g[2] = (2*x[0]**2 + 2*x[0] + x[1]**2 - x[1] +
                      x[2]**2 - x[3] - 5)
+
+        self._logger.critical('done: result %s, g %s', self.result, self.g)
+
+
+class PrintEnvironment(ExternalCode):
+
+    allocator = Str('LocalHost', iotype='in')
+    env_str = Str(iotype='out')
+
+    def execute(self):
+        self._logger.critical('execute: allocator %s', self.allocator)
+
+        self.resources = dict(allocator=self.allocator)
+        self.command = ['printenv']
+        self.stdout = 'printenv.out'
+        super(PrintEnvironment, self).execute()
+        with open('printenv.out', 'r') as inp:
+            self.env_str = inp.read()
+
+        self._logger.critical('done %s', len(self.env_str))
 
