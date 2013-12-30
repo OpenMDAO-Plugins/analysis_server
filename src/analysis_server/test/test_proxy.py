@@ -4,7 +4,6 @@ import nose
 import os.path
 import pkg_resources
 import shutil
-import socket
 import sys
 import unittest
 
@@ -92,8 +91,12 @@ class TestCase(unittest.TestCase):
         self.factory.shutdown()
         analysis_server.stop_server(self.server)
         os.remove('hosts.allow')
+
         for egg in glob.glob('*.egg'):
             os.remove(egg)
+        for egg in glob.glob(os.path.join('OptComps', '*.egg')):
+            os.remove(egg)
+
         for dirname in ('ASTestComp', 'ASTestComp2', 'logs'):
             if os.path.exists(dirname):
                 shutil.rmtree(dirname)
@@ -101,6 +104,13 @@ class TestCase(unittest.TestCase):
             os.remove('as-0.out')
         except WindowsError:
             pass  # Still in use by server...
+
+        # Server enforces versioned config files.
+        original = os.path.join('OptComps', 'RosenSuzuki.cfg')
+        versioned = os.path.join('OptComps', 'RosenSuzuki-0.1.cfg')
+        if os.path.exists(versioned):
+            os.rename(versioned, original)
+
         os.chdir(ORIG_DIR)
 
     def get_state(self, container, path, client):
@@ -131,7 +141,8 @@ class TestCase(unittest.TestCase):
         self.assertEqual(self.factory.get_available_types(),
                          [('ASTestComp', '0.1'),
                           ('ASTestComp', '0.2'),
-                          ('ASTestComp2', '0.1')])
+                          ('ASTestComp2', '0.1'),
+                          ('OptComps/RosenSuzuki', '0.1')])
         self.assertEqual(self.factory.get_available_types('no-such-group'), [])
         self.assertEqual(self.factory.create('no-such-type'), None)
 

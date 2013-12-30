@@ -96,14 +96,25 @@ class TestCase(unittest.TestCase):
         del self.handler
         del self.server
         del self.client
+
         for egg in glob.glob('*.egg'):
             os.remove(egg)
+        for egg in glob.glob(os.path.join('OptComps', '*.egg')):
+            os.remove(egg)
+
         for filename in ('in_file.dat', 'inFile.dat', 'outFile.dat'):
             if os.path.exists(filename):
                 os.remove(filename)
         for dirname in ('ASTestComp', 'logs'):
             if os.path.exists(dirname):
                 shutil.rmtree(dirname)
+
+        # Server enforces versioned config files.
+        original = os.path.join('OptComps', 'RosenSuzuki.cfg')
+        versioned = os.path.join('OptComps', 'RosenSuzuki-0.1.cfg')
+        if os.path.exists(versioned):
+            os.rename(versioned, original)
+
         os.chdir(ORIG_DIR)
 
     def send_recv(self, cmd, raw=False, count=None):
@@ -449,7 +460,7 @@ An additional description line.  ( &amp; &lt; &gt; )</Description>
 version: 7.0
 build: 42968
 num clients: 0
-num components: 3
+num components: 4
 os name: %s
 os arch: %s
 os version: %s
@@ -609,9 +620,9 @@ Available Commands:
 
     def test_list_categories(self):
         replies = self.send_recv('listCategories /')
-        self.assertEqual(replies[-1], '0 categories found:\r\n>')
+        self.assertEqual(replies[-1], '1 categories found:\r\nOptComps\r\n>')
         replies = self.send_recv('la')
-        self.assertEqual(replies[-1], '0 categories found:\r\n>')
+        self.assertEqual(replies[-1], '1 categories found:\r\nOptComps\r\n>')
 
         replies = self.send_recv('listCategories category oops')
         self.assertEqual(replies[-1],
@@ -845,7 +856,7 @@ if __name__ == '__main__':
 
         monitor = BaseMonitor('test', 10, '42', sys.stdout.write, False)
         monitor.start()
-        assert_raises(self, 'monitor.start()', globals(), locals(), 
+        assert_raises(self, 'monitor.start()', globals(), locals(),
                       RuntimeError, 'start() may only be called once.')
         monitor.stop()
 

@@ -266,7 +266,7 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             cfg_version = ''
 
         cfg_name = os.path.basename(path)
-        name, dash, version = cfg_name.partition('-')
+        name, _, version = cfg_name.partition('-')
         if not version:
             name = name[:-4]  # Drop '.cfg'
             if not cfg_version:
@@ -280,9 +280,9 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         if version != cfg_version:
             cfg_dir = os.path.dirname(path)
             new_path = os.path.join(cfg_dir, '%s-%s.cfg' % (name, cfg_version))
-            logger.warning('Renaming %r', path)
-            logger.warning('      to %r', new_path)
-            os.rename(path, new_path)
+            logger.warning('Renaming %r', cfg_name)
+            logger.warning('      to %r', os.path.basename(new_path))
+            os.rename(cfg_name, os.path.basename(new_path))
             path = new_path
             version = cfg_version
 
@@ -298,7 +298,7 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             else:
                 filename = config.get('Python', 'filename')
                 for egg in glob.glob('%s-%s.*.egg' % (name, version)):
-                    if os.path.getmtime(egg) > os.path.getmtime(path) and \
+                    if os.path.getmtime(egg) > os.path.getmtime(cfg_name) and \
                        os.path.getmtime(egg) > os.path.getmtime(filename):
                         # Create temporary instance from egg.
                         obj = Container.load_from_eggfile(egg, log=logger)
@@ -571,7 +571,7 @@ version: %s""" % _VERSION)
             Sort order.
         """
         typ = typ.strip('"').lstrip('/')
-        name, qmark, version = typ.partition('?')
+        name, _, version = typ.partition('?')
         if version:  # Return specific version.
             name = '%s-%s' % (name, version)
             try:
@@ -841,7 +841,7 @@ Object %s ended.""" % (name, name))
                              'get <object.property>')
             return
 
-        name, dot, path = args[0].partition('.')
+        name, _, path = args[0].partition('.')
         wrapper, worker = self._get_wrapper(name)
         if wrapper is not None:
             worker.put((wrapper.get, (path, self._req_id), {}, None))
@@ -1169,7 +1169,7 @@ Available Commands:
                              'invoke <object.method()> [full]')
             return
 
-        name, dot, method = args[0].partition('.')
+        name, _, method = args[0].partition('.')
         method = method[:-2]
         full = len(args) == 2 and args[1] == 'full'
         wrapper, worker = self._get_wrapper(name)
@@ -1191,7 +1191,7 @@ Available Commands:
                              'listArrayValues,lav <object>')
             return
 
-        name, dot, path = args[0].partition('.')
+        name, _, path = args[0].partition('.')
         wrapper, worker = self._get_wrapper(name)
         if wrapper is not None:
             worker.put((wrapper.list_array_values,
@@ -1262,7 +1262,7 @@ Available Commands:
                 if name.startswith(category):
                     name = name[len(category):]
                     if '/' not in name:
-                        name, dash, version = name.partition('-')
+                        name, _, version = name.partition('-')
                         components.add(name)
         lines = ['%d components found:' % len(components)]
         lines.extend(sorted(components))
@@ -1352,7 +1352,7 @@ Available Commands:
             lines.extend(names)
             self._send_reply('\n'.join(lines))
         else:  # List component properties.
-            name, dot, path = args[0].partition('.')
+            name, _, path = args[0].partition('.')
             wrapper, worker = self._get_wrapper(name)
             if wrapper is not None:
                 worker.put((wrapper.list_properties,
@@ -1377,7 +1377,7 @@ Available Commands:
                              'listValues,lv [object]')
             return
 
-        name, dot, path = args[0].partition('.')
+        name, _, path = args[0].partition('.')
         wrapper, worker = self._get_wrapper(name)
         if wrapper is not None:
             worker.put((wrapper.list_values, (path, self._req_id), {}, None))
@@ -1400,7 +1400,7 @@ Available Commands:
                              'listValuesURL,lvu [object]')
             return
 
-        name, dot, path = args[0].partition('.')
+        name, _, path = args[0].partition('.')
         wrapper, worker = self._get_wrapper(name)
         if wrapper is not None:
             worker.put((wrapper.list_values_url,
@@ -1424,7 +1424,7 @@ Available Commands:
             return
 
         if args[0] == 'start':
-            name, dot, path = args[1].partition('.')
+            name, _, path = args[1].partition('.')
             wrapper, worker = self._get_wrapper(name)
             if wrapper is not None:
                 worker.put((wrapper.start_monitor,
@@ -1497,7 +1497,7 @@ Available Commands:
                              'publishEgg <path> <version> <comment> <author> ZEROBYTE <eggdata>')
             return
 
-        args, zero, eggdata = self._req.partition('\0')
+        args, _, eggdata = self._req.partition('\0')
         cmd, path, version, comment, author = shlex.split(args)
 
         self._logger.info('Publish from %s: %s %s %r',
@@ -1506,7 +1506,7 @@ Available Commands:
         with self.server.dir_lock:
             # Create directory (category).
             path = path.strip('/')
-            directory, slash, name = path.rpartition('/')
+            directory, _, name = path.rpartition('/')
             if directory and not os.path.exists(directory):
                 os.makedirs(directory)
 
@@ -1589,9 +1589,9 @@ egg: %s
         args: list[string]
             Arguments for the command.
         """
-        cmd, space, assignment = self._req.partition(' ')
-        lhs, eqsign, rhs = assignment.partition('=')
-        name, dot, path = lhs.strip().partition('.')
+        cmd, _, assignment = self._req.partition(' ')
+        lhs, _, rhs = assignment.partition('=')
+        name, _, path = lhs.strip().partition('.')
         wrapper, worker = self._get_wrapper(name)
         if wrapper is not None:
             worker.put((wrapper.set,
@@ -1607,8 +1607,8 @@ egg: %s
         args: list[string]
             Arguments for the command.
         """
-        cmd, space, rest = self._req.partition(' ')
-        name, space, xml = rest.partition(' ')
+        cmd, _, rest = self._req.partition(' ')
+        name, _, xml = rest.partition(' ')
         wrapper, worker = self._get_wrapper(name)
         if wrapper is not None:
             worker.put((wrapper.set_hierarchy, (xml, self._req_id), {}, None))
@@ -1801,7 +1801,7 @@ class _WrapperConfig(object):
 
         # Normalize name of config file to <component_name>-<version>.cfg.
         cfg_name = os.path.basename(cfg_path)
-        name, dash, version = cfg_name.partition('-')
+        name, _, version = cfg_name.partition('-')
         if not version:
             name = name[:-4]  # Drop '.cfg'
             if self.version:
