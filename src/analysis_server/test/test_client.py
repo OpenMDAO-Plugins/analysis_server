@@ -50,10 +50,11 @@ class TestCase(unittest.TestCase):
             pass  # Still in use by server...
 
         # Server enforces versioned config files.
-        original = os.path.join('OptComps', 'RosenSuzuki.cfg')
-        versioned = os.path.join('OptComps', 'RosenSuzuki-0.1.cfg')
-        if os.path.exists(versioned):
-            os.rename(versioned, original)
+        for cfg in ('RosenSuzuki', 'PrintEnv'):
+            original = os.path.join('OptComps', '%s.cfg' % cfg)
+            versioned = os.path.join('OptComps', '%s-0.1.cfg' % cfg)
+            if os.path.exists(versioned):
+                os.rename(versioned, original)
 
         os.chdir(ORIG_DIR)
 
@@ -122,7 +123,7 @@ class TestCase(unittest.TestCase):
             'version': '7.0',
             'build': '42968',
             'num clients': '1',
-            'num components': '4',
+            'num components': '5',
             'os name': platform.system(),
             'os arch': platform.processor(),
             'os version': platform.release(),

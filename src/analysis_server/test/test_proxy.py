@@ -106,10 +106,11 @@ class TestCase(unittest.TestCase):
             pass  # Still in use by server...
 
         # Server enforces versioned config files.
-        original = os.path.join('OptComps', 'RosenSuzuki.cfg')
-        versioned = os.path.join('OptComps', 'RosenSuzuki-0.1.cfg')
-        if os.path.exists(versioned):
-            os.rename(versioned, original)
+        for cfg in ('RosenSuzuki', 'PrintEnv'):
+            original = os.path.join('OptComps', '%s.cfg' % cfg)
+            versioned = os.path.join('OptComps', '%s-0.1.cfg' % cfg)
+            if os.path.exists(versioned):
+                os.rename(versioned, original)
 
         os.chdir(ORIG_DIR)
 
@@ -142,6 +143,7 @@ class TestCase(unittest.TestCase):
                          [('ASTestComp', '0.1'),
                           ('ASTestComp', '0.2'),
                           ('ASTestComp2', '0.1'),
+                          ('OptComps/PrintEnv', '0.1'),
                           ('OptComps/RosenSuzuki', '0.1')])
         self.assertEqual(self.factory.get_available_types('no-such-group'), [])
         self.assertEqual(self.factory.create('no-such-type'), None)
@@ -381,6 +383,26 @@ class TestCase(unittest.TestCase):
         analysis_server.set_translation('FroBoz', 'degF')
         self.assertTrue(analysis_server.have_translation('FroBoz'))
         self.assertEqual(analysis_server.get_translation('FroBoz'), 'degF')
+
+# Only run this if nas_access is set up.
+#    def test_pleiades(self):
+#        logging.debug('')
+#        logging.debug('test_pleiades')
+#
+#        comp = self.factory.create('OptComps/RosenSuzuki')
+#        comp.log_level = 0
+#        comp.set('x', [0, 1, 2, -1])
+#        comp.run()
+#        self.assertEqual(comp.get('result'), 6)
+#
+#        comp = self.factory.create('OptComps/PrintEnv')
+#        comp.log_level = 0
+#        comp.allocator = 'Pleiades'
+#        comp.force_execute = True
+#        comp.run()
+#        logging.debug('env_str:\n%s', comp.env_str)
+#        if len(comp.env_str) <= 0:
+#            self.fail('comp.env_str empty')
 
 
 if __name__ == '__main__':

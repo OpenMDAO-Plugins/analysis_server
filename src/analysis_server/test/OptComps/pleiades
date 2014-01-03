@@ -1,0 +1,5 @@
+[Pleiades]
+classname: nas_access.NAS_Allocator
+dmz_host: dmzfs1.nas.nasa.gov
+server_host: pfe27
+

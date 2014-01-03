@@ -29,9 +29,13 @@ by :class:`ConfigParser.SafeConfigParser`, for example::
     requirements:
 
     [Python]
-    # Information for creating an instance.
+    # Information for creating an instance. Resources is optional, it specifies
+    # a resource configuration file for the component server to use.
+    # Note that the resources file should not end in '.cfg' or it will be
+    # interpreted as a component configuration file.
     filename: ASTestComp.py
     classname: TestComponent
+    resources: pleiades
 
     [Inputs]
     # Mapping from ModelCenter name to OpenMDAO name.
@@ -265,6 +269,7 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
         else:
             cfg_version = ''
 
+        cfg_dir = os.path.dirname(path)
         cfg_name = os.path.basename(path)
         name, _, version = cfg_name.partition('-')
         if not version:
@@ -278,7 +283,6 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
                 config.set('Description', 'version', version)
 
         if version != cfg_version:
-            cfg_dir = os.path.dirname(path)
             new_path = os.path.join(cfg_dir, '%s-%s.cfg' % (name, cfg_version))
             logger.warning('Renaming %r', cfg_name)
             logger.warning('      to %r', os.path.basename(new_path))
@@ -358,6 +362,17 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
                                     [name for name, pth in egg_info[2]])
                     finally:
                         SimulationRoot.chroot(simroot)
+                        if simroot != cwd:
+                            os.chdir(cwd)  # chroot() changes current directory.
+
+            # Check for optional resources filename.
+            resources = None
+            if config.has_option('Python', 'resources'):
+                resources = config.get('Python', 'resources')
+                if not os.path.exists(resources):
+                    raise RuntimeError('Resources file %r not found in %s'
+                                       % (resources, os.getcwd()))
+                resources = os.path.join(cfg_dir, resources)
 
             # Create wrapper configuration object.
             cfg_path = os.path.join(cwd, os.path.basename(path))
@@ -372,7 +387,7 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             path = path.replace('\\', '/')  # Always use '/'.
             logger.debug('    registering %s: %s', path, egg_info[0])
             with self.components as comps:
-                comps[path] = (cfg, egg_info)
+                comps[path] = (cfg, egg_info, resources)
             obj.pre_delete()
             del obj
 
@@ -719,7 +734,7 @@ version: %s""" % _VERSION)
         if not lst:
             return
 
-        cfg, egg_info = lst[0]
+        cfg, egg_info, resources = lst[0]
         has_version_info = 'true' if len(lst) > 1 else 'false'
 
         if len(args) > 1 and args[1] == '-xml':
@@ -1689,7 +1704,7 @@ egg: %s
         lst = self._get_component(args[0])
         if not lst:
             return
-        cfg, egg_info = lst[0]
+        cfg, egg_info, resources = lst[0]
 
         name = args[1]
         if name in self._instance_map:
@@ -1712,6 +1727,12 @@ egg: %s
                 server, server_info = RAM.allocate(resource_desc)
                 if server is None:
                     raise RuntimeError('Server allocation failed :-(')
+
+                # If resources specified, configure server.
+                if resources:
+                    basename = os.path.basename(resources)
+                    filexfer(None, resources, server, basename)
+                    server.config_ram(basename)
 
                 # Transfer egg to it and load.
                 egg_name = os.path.basename(egg_file)
@@ -1749,7 +1770,7 @@ egg: %s
             return
 
         xml = ["<Branch name='HEAD'>"]
-        for cfg, egg_info in lst:
+        for cfg, egg_info, resources in lst:
             xml.append(" <Version name='%s'>" % cfg.version)
             xml.append("  <author>%s</author>" % escape(cfg.author))
             xml.append("  <date>%s</date>" % cfg.timestamp)
