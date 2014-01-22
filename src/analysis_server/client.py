@@ -164,14 +164,18 @@ class Client(object):
         reply = self._send_recv('getDirectTransfer')
         return reply == 'true'
 
-    def get_hierarchy(self, path):
+    def get_hierarchy(self, path, gzipped=False):
         """
         Return all interface variable information for `path` as XML.
 
         path: string
             Path to component instance.
+
+        gzipped: bool
+            If True, returned string is in gzip form.
         """
-        reply = self._send_recv('getHierarchy %s' % path)
+        gzipped = ' gzipData' if gzipped else ''
+        reply = self._send_recv('getHierarchy %s%s' % (path, gzipped))
 # TODO: Pythonic return value.
         return reply
 
@@ -206,7 +210,7 @@ class Client(object):
         reply = self._send_recv('getSysInfo')
         dct = {}
         for line in reply.split('\n'):
-            name, colon, value = line.partition(':')
+            name, _, value = line.partition(':')
             dct[name.strip()] = value.strip()
         return dct
 
@@ -304,7 +308,7 @@ class Client(object):
         if full:
             info = []
             for line in reply.split('\n')[1:]:
-                meth, space, full_name = line.partition(' ')
+                meth, _, full_name = line.partition(' ')
                 meth = meth[:-2]
                 full_name = full_name.split('=')[1].strip('"')
                 info.append((meth, full_name))
