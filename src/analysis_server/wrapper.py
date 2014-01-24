@@ -160,7 +160,7 @@ class ComponentWrapper(object):
                 int_path = self._cfg.properties[ext_path]
                 epath = ext_path
             else:
-                epath, dot, ext_attr = ext_path.rpartition('.')
+                epath, _, ext_attr = ext_path.rpartition('.')
                 if epath in self._cfg.properties:
                     int_path = self._cfg.properties[epath]
                 else:
@@ -265,16 +265,16 @@ class ComponentWrapper(object):
             lines.append('<Group>')
             for path in sorted(self._cfg.properties.keys()):
                 wrapper, attr = self._get_var_wrapper(path)
-                prefix, dot, name = path.rpartition('.')
+                prefix, _, name = path.rpartition('.')
                 if prefix != group:
                     while not prefix.startswith(group):  # Exit subgroups.
                         lines.append('</Group>')
-                        group, dot, name = group.rpartition('.')
-                    name, dot, rest = prefix.partition('.')
+                        group, _, name = group.rpartition('.')
+                    name, _, rest = prefix.partition('.')
                     if name:
                         lines.append('<Group name="%s">' % name)
                     while rest:  # Enter subgroups.
-                        name, dot, rest = rest.partition('.')
+                        name, _, rest = rest.partition('.')
                         lines.append('<Group name="%s">' % name)
                     group = prefix
                 try:
@@ -441,7 +441,7 @@ class ComponentWrapper(object):
                 if path and not ext_path.startswith(path):
                     continue
                 rest = ext_path[length:]
-                name, dot, rest = rest.partition('.')
+                name, _, rest = rest.partition('.')
                 if rest:
                     if name in groups:
                         continue
@@ -679,7 +679,7 @@ class ComponentWrapper(object):
             'Raw' mode request identifier.
         """
         try:
-            header, newline, xml = xml.partition('\n')
+            header, _, xml = xml.partition('\n')
             root = ElementTree.fromstring(xml)
             for var in root.findall('Variable'):
                 valstr = var.text or ''
@@ -920,10 +920,10 @@ class ArrayBase(BaseWrapper):
                 valstr = valstr.decode('string_escape')
             if self._is_array:
                 if valstr.startswith('bounds['):
-                    dims, rbrack, rest = valstr[7:].partition(']')
+                    dims, _, rest = valstr[7:].partition(']')
                     dims = [int(val.strip(' "')) for val in dims.split(',')]
-                    junk, lbrace, rest = rest.partition('{')
-                    data, rbrace, rest = rest.partition('}')
+                    junk, _, rest = rest.partition('{')
+                    data, _, rest = rest.partition('}')
                     value = numpy.array([self.typ(val.strip(' "'))
                                          for val in data.split(',')]).reshape(dims)
                 else:
@@ -1441,7 +1441,11 @@ class FileWrapper(BaseWrapper):
                 try:
                     with file_ref.open() as inp:
                         gz_file = _GzipFile(mode='wb', fileobj=data)
-                        gz_file.writelines(inp)
+                        try:
+                            gz_file.writelines(inp)
+                        except RemoteError as exc:
+                            if not 'StopIteration' in str(exc):
+                                raise
                         gz_file.close()
                 except IOError as exc:
                     self._logger.warning('get %s.value: %r',
@@ -1490,7 +1494,7 @@ class FileWrapper(BaseWrapper):
             if self._trait.local_path:
                 filename = self._trait.local_path
             else:
-                left, dot, name = self._ext_path.rpartition('.')
+                left, _, name = self._ext_path.rpartition('.')
                 filename = '%s.dat' % name
             if not os.path.isabs(filename):
                 filename = os.path.join(self._owner.get_abs_directory(),
