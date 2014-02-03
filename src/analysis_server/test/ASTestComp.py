@@ -64,8 +64,8 @@ class TestComponent(Component):
     z = Float(iotype='out', desc='Z output', units='ft')
     exe_count = Int(iotype='out', desc='Execution count')
 
-    in_file = File(iotype='in', local_path='inFile.dat', desc='Input file')
-    out_file = File(FileRef('outFile.dat'), iotype='out', desc='Output file')
+    in_file = File(iotype='in', local_path='inFile.data', desc='Input file')
+    out_file = File(FileRef('outFile.data'), iotype='out', desc='Output file')
 
     obj_input = VarTree(TopObj(iotype='in'))
     obj_output = VarTree(TopObj(iotype='out'))

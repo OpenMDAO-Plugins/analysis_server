@@ -9,6 +9,7 @@ is referenced.
 import base64
 import cStringIO
 import gzip
+import mimetypes
 import numpy
 import os
 import sys
@@ -41,24 +42,6 @@ from analysis_server.objxml import get_as_xml, set_from_xml
 class WrapperError(Exception):
     """ Denotes wrapper-specific errors. """
     pass
-
-
-class _GzipFile(gzip.GzipFile):
-    """ Class to patch _read_eof() for Python prior to 2.7. """
-
-    def _read_eof(self):
-        """ Handle zero padding at end of file for Python prior to 2.7. """
-        gzip.GzipFile._read_eof(self)
-        if float(sys.version[:3]) < 2.7:
-            # Gzip files can be padded with zeroes and still have archives.
-            # Consume all zero bytes and set the file position to the first
-            # non-zero byte. See http://www.gzip.org/#faq8
-            c = "\x00"
-            while c == "\x00":
-                c = self.fileobj.read(1)
-            if c:
-                self.fileobj.seek(-1, 1)
-
 
 # Mapping from OpenMDAO variable type to wrapper type.
 _TYPE_MAP = {}
@@ -1412,14 +1395,19 @@ class FileWrapper(BaseWrapper):
             file_ref = self._container.get(self._name)
             if file_ref is None:
                 return ''
+            typ = mimetypes.guess_type(file_ref.path, strict=False)[0]
+            if typ is not None:
+                return typ
             elif file_ref.binary:
                 return 'application/octet-stream'
             else:
                 return 'text/plain'
         elif attr == 'name':
-            return ''
+            file_ref = self._container.get(self._name)
+            return '' if file_ref is None else file_ref.path
         elif attr == 'nameCoded':
-            return ''
+            file_ref = self._container.get(self._name)
+            return '' if file_ref is None else file_ref.path
         elif attr == 'url':
             return ''
         else:
@@ -1432,6 +1420,8 @@ class FileWrapper(BaseWrapper):
         gzipped: bool
             If True, file data is gzipped and then base64 encoded.
         """
+        file_ref = self._container.get(self._name)
+        filename = '' if file_ref is None else file_ref.path
         if gzipped:
             file_ref = self._container.get(self._name)
             if file_ref is None:
@@ -1440,13 +1430,11 @@ class FileWrapper(BaseWrapper):
                 data = cStringIO.StringIO()
                 try:
                     with file_ref.open() as inp:
-                        gz_file = _GzipFile(mode='wb', fileobj=data)
-                        try:
-                            gz_file.writelines(inp)
-                        except RemoteError as exc:
-                            if not 'StopIteration' in str(exc):
-                                raise
-                        gz_file.close()
+                        inp_data = inp.read()
+                        if file_ref.binary:
+                            inp_data = base64.b64encode(inp_data)
+                        with gzip.GzipFile(mode='wb', fileobj=data) as gz_file:
+                            gz_file.write(inp_data)
                 except IOError as exc:
                     self._logger.warning('get %s.value: %r',
                                          self._ext_path, exc)
@@ -1460,17 +1448,25 @@ class FileWrapper(BaseWrapper):
                         raise
                 else:
                     data = base64.b64encode(data.getvalue())
+                    chunks = []
+                    chunk = data[:76]
+                    while chunk:
+                        chunks.append(chunk)
+                        data = data[76:]
+                        chunk = data[:76]
+                    chunks.append('')
+                    data = '\n'.join(chunks)
             zipped = ' gzipped="true"'
         else:
             data = escape(self.get('value', self._ext_path))
             zipped = ''
 
         return '<Variable name="%s" type="file" io="%s" description=%s' \
-               ' isBinary="%s" fileName=""%s>%s</Variable>' \
+               ' isBinary="%s" fileName="%s"%s>%s</Variable>' \
                % (self._ext_name, self._io,
                   quoteattr(self.get('description', self._ext_path)),
                   self.get('isBinary', self._ext_path),
-                  zipped, data)
+                  filename, zipped, data)
 
     def set(self, attr, path, valstr, gzipped):
         """
@@ -1501,7 +1497,7 @@ class FileWrapper(BaseWrapper):
                                         filename)
             if gzipped:
                 data = cStringIO.StringIO(self._decode(valstr))
-                gz_file = _GzipFile(mode='rb', fileobj=data)
+                gz_file = gzip.GzipFile(mode='rb', fileobj=data)
                 valstr = gz_file.read()
             else:
                 valstr = valstr.strip('"').decode('string_escape')
