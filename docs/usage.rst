@@ -78,12 +78,15 @@ clients may connect from.
 
 When the server starts, it will look in its current directory tree for
 configuration files. For each file found it will create a corresponding egg
-file (if not already provided).  Note that the server creates component
-instances from these egg files, not from the specified Python file.
-So to have changes reflected in the components provided to clients either the
-configuration file must be updated or the corresponding egg file must be
-removed.  Either of these actions will cause the egg file to be recreated when
-the server restarts.
+file (if not already provided).
+
+.. note::
+
+    The server creates component instances from these egg files, not from the
+    specified Python file.  So to have changes reflected in the components
+    provided to clients either the configuration file must be updated or the
+    corresponding egg file must be removed.  Either of these actions will cause
+    the egg file to be recreated when the server restarts.
 
 If a configuration file is found in a subdirectory, the path to the file
 is used as a component type name prefix.
@@ -96,4 +99,71 @@ This is done via the ``publish.py`` tool::
 
 
 Please consult the :ref:`analysis_server_src_label` section for more detail.
+
+
+=====
+Hints
+=====
+
+
+*Debugging*
+___________
+
+Normally when a component instance is not needed anymore, its server directory
+is removed.  If you want these directories to be preserved, set the
+environment variable ``OPENMDAO_KEEPDIRS`` to ``1``.
+
+The log files created by the server will have more information in them
+if you add ``--debug`` to the server command line.
+
+*Binary Files*
+______________
+
+When transferring binary file data back to ModelCenter via a File variable,
+it's important that the binary nature be flagged before execution because
+ModelCenter will use the binary indicator to alter how the file data is
+processed when read back.  If you don't, the data is returned to ModelCenter,
+but it will be stored in ``base64`` format.
+
+One way to get the binary indicator set is to initialize the File variable
+with a FileRef describing the file (even if the file doesn't exist yet)::
+
+    from openmdao.main.api import Component
+    from openmdao.main.datatypes.api import File, FileRef
+
+    class FileComponent(Component):
+
+        file1 = File(FileRef('iso_cp.png', binary=True), iotype='out')
+        file2 = File(FileRef('fig_1.png', binary=True), iotype='out')
+
+        def execute(self):
+            # Add code which causes the files to be created.
+            pass
+
+If you happen to forget to do this and end up with the base64 data, the code
+below will decode the file.  Note that due to a ModelCenter quirk (at least as
+of version 10), Python's base64 decoder may not consider the ModelCebter file
+well-formed.  This code handles that problem::
+
+    import base64
+    import sys
+
+    if len(sys.argv) < 3:
+        print 'usage: python decode.py encoded-file decoded-file'
+        sys.exit(1)
+
+    with open(sys.argv[1], 'r') as inp:
+        data = inp.read()
+
+    while data:
+        try:
+            decoded = base64.b64decode(data)
+        except Exception as exc:
+            print 'b64decode exception', exc
+            print 'dropping %r' % data[-1]
+            data = data[:-1]
+        else:
+            with open(sys.argv[2], 'wb') as out:
+                out.write(decoded)
+            break
 
