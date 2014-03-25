@@ -299,7 +299,7 @@ class ArrayProxy(ProxyMixin, Array):
         ProxyMixin.__init__(self, client, rpath)
         self._type = typ
 
-        default = self._parse(self._valstr)
+        default = self._value = self._parse(self._valstr)
         desc = client.get(rpath+'.description')
 
         if typ == float:
@@ -359,7 +359,7 @@ class ArrayProxy(ProxyMixin, Array):
             return numpy.array([self._type(val.strip(' "'))
                                 for val in valstr.split(',')])
         else:
-            return []
+            return numpy.array([])
 
     def set(self, obj, name, value):
         """
@@ -375,17 +375,23 @@ class ArrayProxy(ProxyMixin, Array):
             Value to be set.
         """
         value = self.validate(obj, name, value)
-        if self._type == float:
-            valstr = ', '.join([_float2str(val) for val in value.flat])
-        elif self._type == int:
-            valstr = ', '.join([str(val) for val in value.flat])
-        else:
-            valstr = ', '.join(['"%s"' % val.encode('string_escape')
-                                for val in value.flat])
-        if len(value.shape) > 1:
-            valstr = 'bounds[%s] {%s}' \
-                     % (', '.join(['%d' % dim for dim in value.shape]), valstr)
-        self.rset(valstr)
+        update = value != self._value
+        if isinstance(update, numpy.ndarray):
+            update = update.any()
+        if update:
+            if self._type == float:
+                valstr = ', '.join([_float2str(val) for val in value.flat])
+            elif self._type == int:
+                valstr = ', '.join([str(val) for val in value.flat])
+            else:
+                valstr = ', '.join(['"%s"' % val.encode('string_escape')
+                                    for val in value.flat])
+            if len(value.shape) > 1:
+                valstr = 'bounds[%s] {%s}' \
+                         % (', '.join(['%d' % dim for dim in value.shape]), valstr)
+            self.rset(valstr)
+            obj.trait_property_changed(name, self._value, value)
+            self._value = value
 
 
 class ListProxy(ProxyMixin, List):
@@ -409,7 +415,8 @@ class ListProxy(ProxyMixin, List):
         ProxyMixin.__init__(self, client, rpath)
         self._type = typ
 
-        default = [typ(val.strip(' "')) for val in self._valstr.split(',')]
+        default = self._value = [typ(val.strip(' "'))
+                                 for val in self._valstr.split(',')]
         desc = client.get(rpath+'.description')
 
         if typ == float:
@@ -466,14 +473,17 @@ class ListProxy(ProxyMixin, List):
             Value to be set.
         """
         value = self.validate(obj, name, value)
-        if self._type == float:
-            valstr = ', '.join([_float2str(val) for val in value])
-        elif self._type == int:
-            valstr = ', '.join([str(val) for val in value])
-        else:
-            valstr = ', '.join(['"%s"' % val.encode('string_escape')
-                                for val in value])
-        self.rset(valstr)
+        if value != self._value:
+            if self._type == float:
+                valstr = ', '.join([_float2str(val) for val in value])
+            elif self._type == int:
+                valstr = ', '.join([str(val) for val in value])
+            else:
+                valstr = ', '.join(['"%s"' % val.encode('string_escape')
+                                    for val in value])
+            self.rset(valstr)
+            obj.trait_property_changed(name, self._value, value)
+            self._value = value
 
 
 class BoolProxy(ProxyMixin, Bool):
@@ -493,7 +503,7 @@ class BoolProxy(ProxyMixin, Bool):
     def __init__(self, iotype, client, rpath):
         ProxyMixin.__init__(self, client, rpath)
 
-        default = self._valstr == 'true'
+        default = self._value = self._valstr == 'true'
         desc = client.get(rpath+'.description')
 
         Bool.__init__(self, default_value=default, iotype=iotype, desc=desc)
@@ -523,7 +533,11 @@ class BoolProxy(ProxyMixin, Bool):
         value: bool
             Value to be set.
         """
-        self.rset('true' if self.validate(obj, name, value) else 'false')
+        value = self.validate(obj, name, value)
+        if value != self._value:
+            self.rset('true' if value else 'false')
+            obj.trait_property_changed(name, self._value, value)
+            self._value = value
 
 
 class EnumProxy(ProxyMixin, Enum):
@@ -567,7 +581,7 @@ class EnumProxy(ProxyMixin, Enum):
         else:
             raise NotImplementedError('EnumProxy for %r' % typ)
 
-        default = self._from_string(self._valstr)
+        default = self._value = self._from_string(self._valstr)
         desc = client.get(rpath+'.description')
 
         enum_values = []
@@ -612,7 +626,11 @@ class EnumProxy(ProxyMixin, Enum):
         value:
             Value to be set.
         """
-        self.rset(self._to_string(self.validate(obj, name, value)))
+        value = self.validate(obj, name, value)
+        if value != self._value:
+            self.rset(self._to_string(value))
+            obj.trait_property_changed(name, self._value, value)
+            self._value = value
 
     def _null(self, val):
         """
@@ -694,6 +712,7 @@ class FileProxy(ProxyMixin, File):
 #        binary = 'true' if value.binary else 'false'
 #        self._client.set(self._rpath+'.isBinary', binary)
         self.rset('"%s"' % valstr.encode('string_escape'))
+        obj.trait_property_changed(name, None, value)
 
 
 class FloatProxy(ProxyMixin, Float):
@@ -713,7 +732,7 @@ class FloatProxy(ProxyMixin, Float):
     def __init__(self, iotype, client, rpath):
         ProxyMixin.__init__(self, client, rpath)
 
-        default = float(self._valstr)
+        default = self._value = float(self._valstr)
         desc = client.get(rpath+'.description')
         as_units = client.get(rpath+'.units')
         if as_units:
@@ -757,7 +776,11 @@ class FloatProxy(ProxyMixin, Float):
         value: float
             Value to be set.
         """
-        self.rset(_float2str(self.validate(obj, name, value)))
+        value = self.validate(obj, name, value)
+        if value != self._value:
+            self.rset(_float2str(value))
+            obj.trait_property_changed(name, self._value, value)
+            self._value = value
 
 
 class IntProxy(ProxyMixin, Int):
@@ -777,7 +800,7 @@ class IntProxy(ProxyMixin, Int):
     def __init__(self, iotype, client, rpath):
         ProxyMixin.__init__(self, client, rpath)
 
-        default = int(self._valstr)
+        default = self._value = int(self._valstr)
         desc = client.get(rpath+'.description')
         if client.get(rpath+'.hasUpperBound') == 'true':
             high = int(client.get(rpath+'.upperBound'))
@@ -816,7 +839,11 @@ class IntProxy(ProxyMixin, Int):
         value: int
             Value to be set.
         """
-        self.rset(str(self.validate(obj, name, value)))
+        value = self.validate(obj, name, value)
+        if value != self._value:
+            self.rset(str(value))
+            obj.trait_property_changed(name, self._value, value)
+            self._value = value
 
 
 class StrProxy(ProxyMixin, Str):
@@ -866,8 +893,10 @@ class StrProxy(ProxyMixin, Str):
         value: string
             Value to be set.
         """
-        self.rset('"%s"' % \
-                  self.validate(obj, name, value).encode('string_escape'))
+	value = self.validate(obj, name, value)
+        if value != self._valstr:
+            self.rset('"%s"' % value.encode('string_escape'))
+            obj.trait_property_changed(name, self._valstr, value)
 
 
 class ObjProxy(VariableTree):
