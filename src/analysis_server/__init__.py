@@ -11,6 +11,7 @@ to the server and made part of the server's set of supported components.
 from __future__ import absolute_import
 
 from .client  import Client
+from .comp    import ASComponent
 from .factory import ASFactory
 from .server  import Server, start_server, stop_server, DEFAULT_PORT
 from .stream  import Stream

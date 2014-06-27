@@ -1,6 +1,8 @@
 import sys
 
-from openmdao.main.api import Assembly, Component, Container, VariableTree
+from analysis_server import ASComponent
+
+from openmdao.main.api import Assembly, Container, VariableTree
 from openmdao.main.rbac import rbac
 
 from openmdao.main.datatypes.api import Array, Bool, Enum, File, FileRef, \
@@ -55,7 +57,7 @@ class TopObj(VariableTree):
     subobj = VarTree(SubObj())
 
 
-class TestComponent(Component):
+class TestComponent(ASComponent):
     """ Just something to test with. """
 
     x = Float(iotype='in', default_value=2, desc='X input')

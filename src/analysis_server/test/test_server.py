@@ -661,11 +661,12 @@ ASTestComp2"""
 
     def test_list_methods(self):
         expected = """\
-5 methods found:
+6 methods found:
 cause_exception()
 float_method()
 int_method()
 null_method()
+reinitialize()
 str_method()"""
         expected = expected.replace('\n', '\r\n') + '\r\n>'
         replies = self.send_recv(['start ASTestComp comp',
@@ -676,11 +677,12 @@ str_method()"""
         self.compare(replies[-1], expected)
 
         expected = """\
-5 methods found:
+6 methods found:
 cause_exception() fullName="cause_exception"
 float_method() fullName="float_method"
 int_method() fullName="int_method"
 null_method() fullName="null_method"
+reinitialize() fullName="reinitialize"
 str_method() fullName="str_method"\
 """
         expected = expected.replace('\n', '\r\n') + '\r\n>'
