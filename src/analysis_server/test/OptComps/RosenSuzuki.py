@@ -2,8 +2,10 @@ from openmdao.main.api import Component
 from openmdao.main.datatypes.api import Array, Float, Str
 from openmdao.lib.components.api import ExternalCode
 
+from analysis_server import ASMixin
 
-class RosenSuzuki(Component):
+
+class RosenSuzuki(Component, ASMixin):
     """ From the CONMIN User's Manual:
     EXAMPLE 1 - CONSTRAINED ROSEN-SUZUKI FUNCTION. NO GRADIENT INFORMATION.
 
@@ -52,7 +54,7 @@ class RosenSuzuki(Component):
         self._logger.critical('done: result %s, g %s', self.result, self.g)
 
 
-class PrintEnvironment(ExternalCode):
+class PrintEnvironment(ExternalCode, ASMixin):
 
     allocator = Str('LocalHost', iotype='in')
     env_str = Str(iotype='out')

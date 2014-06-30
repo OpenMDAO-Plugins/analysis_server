@@ -1999,7 +1999,9 @@ class _WrapperConfig(object):
         if not inspect.ismethod(obj):
             return False
         args, varargs, keywords, defaults = inspect.getargspec(obj.im_func)
-        return len(args) == 1  # Just 'self'.
+        if len(args) != 1:  # Just 'self'.
+            return False
+        return hasattr(obj, '_rbac')  # Must be remotely accessible.
 
 
 def start_server(address='localhost', port=DEFAULT_PORT, allowed_hosts=None,
