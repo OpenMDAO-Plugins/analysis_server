@@ -76,7 +76,7 @@ class TestCase(unittest.TestCase):
             'Checksum': '0',
         }
         expected['Time Stamp'] = \
-            time.ctime(os.path.getmtime('ASTestComp-0.2.cfg'))
+            time.ctime(os.path.getmtime(glob.glob('ASTestComp-0.2.*.egg')[0]))
         result = self.client.describe('ASTestComp')
         self.assertEqual(result, expected)
 

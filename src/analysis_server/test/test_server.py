@@ -247,7 +247,7 @@ class TestCase(unittest.TestCase):
                          'addProxyClients <clientHost1>, ...\r\n>')
 
     def test_describe(self):
-        timestamp = time.ctime(os.path.getmtime('ASTestComp-0.2.cfg'))
+        timestamp = time.ctime(os.path.getmtime(glob.glob('ASTestComp-0.2.*.egg')[0]))
         reply = """\
 Version: 0.2
 Author: anonymous  ( & < > )
@@ -1035,8 +1035,8 @@ ASTestComp2"""
                          "ERROR: Exception: NotImplementedError('start, args > 2',)\r\n>")
 
     def test_versions(self):
-        tstamp1 = time.ctime(os.path.getmtime('ASTestComp-0.1.cfg'))
-        tstamp2 = time.ctime(os.path.getmtime('ASTestComp-0.2.cfg'))
+        tstamp1 = time.ctime(os.path.getmtime(glob.glob('ASTestComp-0.1.*.egg')[0]))
+        tstamp2 = time.ctime(os.path.getmtime(glob.glob('ASTestComp-0.2.*.egg')[0]))
         expected = """\
 <Branch name='HEAD'>
  <Version name='0.1'>
