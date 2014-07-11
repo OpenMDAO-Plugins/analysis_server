@@ -1,5 +1,7 @@
 import sys
 
+from analysis_server import ASMixin
+
 from openmdao.main.api import Assembly, Component, Container, VariableTree
 from openmdao.main.rbac import rbac
 
@@ -55,7 +57,7 @@ class TopObj(VariableTree):
     subobj = VarTree(SubObj())
 
 
-class TestComponent(Component):
+class TestComponent(Component, ASMixin):
     """ Just something to test with. """
 
     x = Float(iotype='in', default_value=2, desc='X input')

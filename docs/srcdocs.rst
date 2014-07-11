@@ -7,6 +7,19 @@ Source Documentation
 ====================
 
         
+.. index:: ASTestComp.py
+
+.. _analysis_server.Jiang.ASTestComp.py:
+
+ASTestComp.py
+-------------
+
+.. automodule:: analysis_server.Jiang.ASTestComp
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+        
 .. index:: client.py
 
 .. _analysis_server.client.py:
@@ -28,6 +41,19 @@ factory.py
 ----------
 
 .. automodule:: analysis_server.factory
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+        
+.. index:: mixin.py
+
+.. _analysis_server.mixin.py:
+
+mixin.py
+--------
+
+.. automodule:: analysis_server.mixin
    :members:
    :undoc-members:
    :show-inheritance:

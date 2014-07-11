@@ -76,7 +76,7 @@ class TestCase(unittest.TestCase):
             'Checksum': '0',
         }
         expected['Time Stamp'] = \
-            time.ctime(os.path.getmtime('ASTestComp-0.2.cfg'))
+            time.ctime(os.path.getmtime(glob.glob('ASTestComp-0.2.*.egg')[0]))
         result = self.client.describe('ASTestComp')
         self.assertEqual(result, expected)
 
@@ -196,6 +196,8 @@ version: 7.0, build: 42968"""
 
     def test_invoke(self):
         self.client.start('ASTestComp', 'comp')
+        result = self.client.invoke('comp.reinitialize')
+        self.assertEqual(result, '')
         result = self.client.invoke('comp.float_method')
         self.assertEqual(result, '5')
         result = self.client.invoke('comp.null_method')
@@ -229,6 +231,7 @@ version: 7.0, build: 42968"""
                                   'float_method',
                                   'int_method',
                                   'null_method',
+                                  'reinitialize',
                                   'str_method'])
 
         result = self.client.list_methods('comp', full=True)
@@ -236,6 +239,7 @@ version: 7.0, build: 42968"""
                                   ('float_method', 'float_method'),
                                   ('int_method', 'int_method'),
                                   ('null_method', 'null_method'),
+                                  ('reinitialize', 'reinitialize'),
                                   ('str_method', 'str_method')])
 
     def test_list_monitors(self):

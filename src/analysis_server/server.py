@@ -377,7 +377,7 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             # Create wrapper configuration object.
             cfg_path = os.path.join(cwd, os.path.basename(path))
             try:
-                cfg = _WrapperConfig(config, obj, cfg_path, logger)
+                cfg = _WrapperConfig(config, obj, cfg_path, egg_info[0], logger)
             except Exception as exc:
                 logger.error(traceback.format_exc())
                 raise RuntimeError("Bad configuration in %r: %s" % (path, exc))
@@ -1800,7 +1800,7 @@ class _WrapperConfig(object):
         Used for progress, errors, etc.
     """
 
-    def __init__(self, config, instance, cfg_path, logger):
+    def __init__(self, config, instance, cfg_path, egg_path, logger):
         if not _IGNORE_ATTR:
             for attr in dir(Component()):
                 _IGNORE_ATTR.add(attr)
@@ -1842,9 +1842,11 @@ class _WrapperConfig(object):
             cfg_path = new_path
         self.cfg_path = cfg_path
 
-        # Timestamp from config file timestamp.
-        stat_info = os.stat(cfg_path)
-        self.timestamp = time.ctime(stat_info.st_mtime)
+        # Timestamp from config file timestamp or egg file.
+        if os.path.getmtime(cfg_path) >= os.path.getmtime(egg_path):
+            self.timestamp = time.ctime(os.path.getmtime(cfg_path))
+        else:
+            self.timestamp = time.ctime(os.path.getmtime(egg_path))
         self.checksum = 0
         self.has_icon = False
 
@@ -1855,6 +1857,7 @@ class _WrapperConfig(object):
 
         # Default author from file owner.
         if not self.author and sys.platform != 'win32':
+            stat_info = os.stat(cfg_path)
             self.author = pwd.getpwuid(stat_info.st_uid).pw_name
 
         # Get properties.
@@ -1999,7 +2002,9 @@ class _WrapperConfig(object):
         if not inspect.ismethod(obj):
             return False
         args, varargs, keywords, defaults = inspect.getargspec(obj.im_func)
-        return len(args) == 1  # Just 'self'.
+        if len(args) != 1:  # Just 'self'.
+            return False
+        return hasattr(obj, '_rbac')  # Must be remotely accessible.
 
 
 def start_server(address='localhost', port=DEFAULT_PORT, allowed_hosts=None,

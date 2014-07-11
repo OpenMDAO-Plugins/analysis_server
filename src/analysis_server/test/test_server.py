@@ -247,7 +247,7 @@ class TestCase(unittest.TestCase):
                          'addProxyClients <clientHost1>, ...\r\n>')
 
     def test_describe(self):
-        timestamp = time.ctime(os.path.getmtime('ASTestComp-0.2.cfg'))
+        timestamp = time.ctime(os.path.getmtime(glob.glob('ASTestComp-0.2.*.egg')[0]))
         reply = """\
 Version: 0.2
 Author: anonymous  ( & < > )
@@ -661,11 +661,12 @@ ASTestComp2"""
 
     def test_list_methods(self):
         expected = """\
-5 methods found:
+6 methods found:
 cause_exception()
 float_method()
 int_method()
 null_method()
+reinitialize()
 str_method()"""
         expected = expected.replace('\n', '\r\n') + '\r\n>'
         replies = self.send_recv(['start ASTestComp comp',
@@ -676,11 +677,12 @@ str_method()"""
         self.compare(replies[-1], expected)
 
         expected = """\
-5 methods found:
+6 methods found:
 cause_exception() fullName="cause_exception"
 float_method() fullName="float_method"
 int_method() fullName="int_method"
 null_method() fullName="null_method"
+reinitialize() fullName="reinitialize"
 str_method() fullName="str_method"\
 """
         expected = expected.replace('\n', '\r\n') + '\r\n>'
@@ -1033,8 +1035,8 @@ ASTestComp2"""
                          "ERROR: Exception: NotImplementedError('start, args > 2',)\r\n>")
 
     def test_versions(self):
-        tstamp1 = time.ctime(os.path.getmtime('ASTestComp-0.1.cfg'))
-        tstamp2 = time.ctime(os.path.getmtime('ASTestComp-0.2.cfg'))
+        tstamp1 = time.ctime(os.path.getmtime(glob.glob('ASTestComp-0.1.*.egg')[0]))
+        tstamp2 = time.ctime(os.path.getmtime(glob.glob('ASTestComp-0.2.*.egg')[0]))
         expected = """\
 <Branch name='HEAD'>
  <Version name='0.1'>

@@ -12,6 +12,7 @@ from __future__ import absolute_import
 
 from .client  import Client
 from .factory import ASFactory
+from .mixin   import ASMixin
 from .server  import Server, start_server, stop_server, DEFAULT_PORT
 from .stream  import Stream
 from .units   import have_translation, get_translation, set_translation

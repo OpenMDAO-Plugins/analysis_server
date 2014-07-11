@@ -39,7 +39,9 @@ interface (in file ``model.py``)::
     from openmdao.main.api import Component
     from openmdao.lib.datatypes.api import Float
 
-    class MyComp(Component):
+    from analysis_server import ASMixin
+
+    class MyComp(Component, ASMixin):
 
         input_var = Float(0, iotype='in')
         output_var = Float(iotype='out')
@@ -48,8 +50,8 @@ interface (in file ``model.py``)::
             self.output_var = self.input_var
 
 
-An example minimal configuration file allowing access to all inputs
-and outputs, but no methods (in file ``RemoteComponent.cfg``)::
+An example minimal configuration file allowing access to all inputs, outputs,
+and remotely accessible single-argument methods (in file ``RemoteComponent.cfg``)::
 
     [Description]
     version: 0.1
@@ -65,6 +67,7 @@ and outputs, but no methods (in file ``RemoteComponent.cfg``)::
     *: *
 
     [Methods]
+    *: *
 
 
 The server can be run using the ``-m`` option to the ``python`` command::
@@ -105,6 +108,16 @@ Please consult the :ref:`analysis_server_src_label` section for more detail.
 Hints
 =====
 
+*Variable Configuration*
+________________________
+
+:class:`ASMixin` defines :meth:`reinitialize`. If a method of this name is found
+by ModelCenter, then updated variable configurations will be automatically
+detected upon model reload.  If for some reason you want your component
+notified upon ModelCenter reload, you can override this. If you don't have
+a definition for :meth:`reinitialize` either by using the mixin class or
+defining your own, you will need to delete and re-add your component instance
+in order for ModelCenter to detect any variable configuration updates.
 
 *Debugging*
 ___________
@@ -142,7 +155,7 @@ with a FileRef describing the file (even if the file doesn't exist yet)::
 
 If you happen to forget to do this and end up with the base64 data, the code
 below will decode the file.  Note that due to a ModelCenter quirk (at least as
-of version 10), Python's base64 decoder may not consider the ModelCebter file
+of version 10), Python's base64 decoder may not consider the ModelCenter file
 well-formed.  This code handles that problem::
 
     import base64
