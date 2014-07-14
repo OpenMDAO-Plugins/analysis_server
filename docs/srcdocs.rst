@@ -7,19 +7,6 @@ Source Documentation
 ====================
 
         
-.. index:: ASTestComp.py
-
-.. _analysis_server.Jiang.ASTestComp.py:
-
-ASTestComp.py
--------------
-
-.. automodule:: analysis_server.Jiang.ASTestComp
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-        
 .. index:: client.py
 
 .. _analysis_server.client.py:

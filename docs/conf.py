@@ -17,7 +17,7 @@ def _sys_path_add(toadd=None):
         distdir = os.path.dirname(os.path.dirname(__file__))
         sys.path = [distdir] + [os.path.join(distdir, p) for p in toadd] + sys.path
 
-_sys_path_add(['src', 'src/analysis_server', 'src/analysis_server/Jiang', 'src/analysis_server/test', 'src/analysis_server/Jiang/logs', 'src/analysis_server/test/OptComps'])
+_sys_path_add(['src', 'src/analysis_server', 'src/analysis_server/test', 'src/analysis_server/test/OptComps'])
 
 # General configuration
 # ---------------------
