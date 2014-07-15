@@ -11,6 +11,13 @@ units (type=java.lang.String) (access=g)  vLen=0  val=
 upperBound (type=long) (access=g)  vLen=10  val=2147483647
 value (type=long) (access=g)  vLen=1  val=0
 valueStr (type=java.lang.String) (access=g)  vLen=1  val=0
+exe_dir (type=com.phoenix_int.aserver.types.PHXString) (access=g)  vLen=0  val=
+   5 SubProps found:
+description (type=java.lang.String) (access=g)  vLen=19  val=Execution directory
+enumAliases (type=java.lang.String[0]) (access=g)  vLen=0  val=
+enumValues (type=java.lang.String[0]) (access=g)  vLen=0  val=
+value (type=java.lang.String) (access=g)  vLen=0  val=
+valueStr (type=java.lang.String) (access=g)  vLen=0  val=
 in_file (type=com.phoenix_int.aserver.types.PHXRawFile) (access=sg)  vLen=0  val=
    6 SubProps found:
 description (type=java.lang.String) (access=g)  vLen=10  val=Input file

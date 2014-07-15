@@ -259,6 +259,7 @@ version: 7.0, build: 42968"""
 
         expected = [
             ('exe_count', 'PHXLong', 'out'),
+            ('exe_dir', 'PHXString', 'out'),
             ('in_file', 'PHXRawFile', 'in'),
             ('obj_input', 'PHXScriptObject', 'in'),
             ('obj_output', 'PHXScriptObject', 'out'),

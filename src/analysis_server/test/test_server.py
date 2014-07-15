@@ -718,8 +718,9 @@ __init__.py"""
 
     def test_list_properties(self):
         expected = """\
-9 properties found:
+10 properties found:
 exe_count (type=com.phoenix_int.aserver.types.PHXLong) (access=g)
+exe_dir (type=com.phoenix_int.aserver.types.PHXString) (access=g)
 in_file (type=com.phoenix_int.aserver.types.PHXRawFile) (access=sg)
 obj_input (type=com.phoenix_int.aserver.types.PHXScriptObject) (access=sg)
 obj_output (type=com.phoenix_int.aserver.types.PHXScriptObject) (access=g)

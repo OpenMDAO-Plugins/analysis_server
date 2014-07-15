@@ -65,6 +65,7 @@ class TestComponent(Component, ASMixin):
               low=-10, high=10, units='ft')
     z = Float(iotype='out', desc='Z output', units='ft')
     exe_count = Int(iotype='out', desc='Execution count')
+    exe_dir = Str(iotype='out', desc='Execution directory')
 
     in_file = File(iotype='in', local_path='inFile.data', desc='Input file')
     out_file = File(FileRef('outFile.data'), iotype='out', desc='Output file')
@@ -81,6 +82,8 @@ class TestComponent(Component, ASMixin):
             raise RuntimeError('x %s is < 0' % self.x)
         self.z = self.x * self.y
         self.exe_count += 1
+        self.exe_dir = self.get_abs_directory()
+
         with self.in_file.open() as inp:
             with open(self.out_file.path, 'w') as out:
                 out.write(inp.read())
