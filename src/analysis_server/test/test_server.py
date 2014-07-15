@@ -107,7 +107,10 @@ class TestCase(unittest.TestCase):
                 os.remove(filename)
         for dirname in ('ASTestComp', 'logs'):
             if os.path.exists(dirname):
-                shutil.rmtree(dirname)
+                try:
+                    shutil.rmtree(dirname)
+                except WindowsError as exc:
+                    print 'rmtree failed:', exc
 
         # Server enforces versioned config files.
         for cfg in ('RosenSuzuki', 'PrintEnv'):

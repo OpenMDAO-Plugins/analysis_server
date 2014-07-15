@@ -1,4 +1,4 @@
-9 properties found:
+10 properties found:
 exe_count (type=com.phoenix_int.aserver.types.PHXLong) (access=g)  vLen=1  val=0
    10 SubProps found:
 description (type=java.lang.String) (access=g)  vLen=15  val=Execution count

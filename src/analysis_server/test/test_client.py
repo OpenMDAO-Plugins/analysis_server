@@ -43,7 +43,10 @@ class TestCase(unittest.TestCase):
 
         for dirname in ('ASTestComp', 'ASTestComp2', 'logs'):
             if os.path.exists(dirname):
-                shutil.rmtree(dirname)
+                try:
+                    shutil.rmtree(dirname)
+                except WindowsError as exc:
+                    print 'rmtree failed:', exc
         try:
             os.remove('as-0.out')
         except WindowsError:
