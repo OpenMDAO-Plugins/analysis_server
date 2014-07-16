@@ -32,10 +32,12 @@ by :class:`ConfigParser.SafeConfigParser`, for example::
     # Information for creating an instance. Resources is optional, it specifies
     # a resource configuration file for the component server to use.
     # Note that the resources file should not end in '.cfg' or it will be
-    # interpreted as a component configuration file.
+    # interpreted as a component configuration file. Directory is also optional,
+    # it specifies the directory for the component server to run in.
     filename: ASTestComp.py
     classname: TestComponent
     resources: pleiades
+    directory: cart3d-sim
 
     [Inputs]
     # Mapping from ModelCenter name to OpenMDAO name.
@@ -374,6 +376,14 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
                                        % (resources, os.getcwd()))
                 resources = os.path.join(cfg_dir, resources)
 
+            # Check for optional diectory path.
+            directory = None
+            if config.has_option('Python', 'directory'):
+                directory = config.get('Python', 'directory')
+                if os.path.isabs(directory) or directory.startswith('..'):
+                    raise ValueError('directory %r must be a subdirectory'
+                                     % directory)
+
             # Create wrapper configuration object.
             cfg_path = os.path.join(cwd, os.path.basename(path))
             try:
@@ -387,7 +397,7 @@ class Server(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
             path = path.replace('\\', '/')  # Always use '/'.
             logger.debug('    registering %s: %s', path, egg_info[0])
             with self.components as comps:
-                comps[path] = (cfg, egg_info, resources)
+                comps[path] = (cfg, egg_info, resources, directory)
             obj.pre_delete()
             del obj
 
@@ -734,7 +744,7 @@ version: %s""" % _VERSION)
         if not lst:
             return
 
-        cfg, egg_info, resources = lst[0]
+        cfg, egg_info, resources, directory = lst[0]
         has_version_info = 'true' if len(lst) > 1 else 'false'
 
         if len(args) > 1 and args[1] == '-xml':
@@ -1704,7 +1714,7 @@ egg: %s
         lst = self._get_component(args[0])
         if not lst:
             return
-        cfg, egg_info, resources = lst[0]
+        cfg, egg_info, resources, directory = lst[0]
 
         name = args[1]
         if name in self._instance_map:
@@ -1717,8 +1727,11 @@ egg: %s
             'orphan_modules': egg_info[2],
             'python_version': sys.version[:3]
         }
+        if directory:
+            resource_desc['working_directory'] = directory
 
-        self._logger.info('Starting %r from %r', name, egg_file)
+        self._logger.info('Starting %r from %s, directory %r',
+                          name, egg_file, directory)
 
         # Create component instance.
         with self.server.dir_lock:
@@ -1770,7 +1783,7 @@ egg: %s
             return
 
         xml = ["<Branch name='HEAD'>"]
-        for cfg, egg_info, resources in lst:
+        for cfg, egg_info, resources, directory in lst:
             xml.append(" <Version name='%s'>" % cfg.version)
             xml.append("  <author>%s</author>" % escape(cfg.author))
             xml.append("  <date>%s</date>" % cfg.timestamp)

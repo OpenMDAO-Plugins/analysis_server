@@ -107,7 +107,10 @@ class TestCase(unittest.TestCase):
                 os.remove(filename)
         for dirname in ('ASTestComp', 'logs'):
             if os.path.exists(dirname):
-                shutil.rmtree(dirname)
+                try:
+                    shutil.rmtree(dirname)
+                except WindowsError as exc:
+                    print 'rmtree failed:', exc
 
         # Server enforces versioned config files.
         for cfg in ('RosenSuzuki', 'PrintEnv'):
@@ -718,8 +721,9 @@ __init__.py"""
 
     def test_list_properties(self):
         expected = """\
-9 properties found:
+10 properties found:
 exe_count (type=com.phoenix_int.aserver.types.PHXLong) (access=g)
+exe_dir (type=com.phoenix_int.aserver.types.PHXString) (access=g)
 in_file (type=com.phoenix_int.aserver.types.PHXRawFile) (access=sg)
 obj_input (type=com.phoenix_int.aserver.types.PHXScriptObject) (access=sg)
 obj_output (type=com.phoenix_int.aserver.types.PHXScriptObject) (access=g)

@@ -99,7 +99,10 @@ class TestCase(unittest.TestCase):
 
         for dirname in ('ASTestComp', 'ASTestComp2', 'logs'):
             if os.path.exists(dirname):
-                shutil.rmtree(dirname)
+                try:
+                    shutil.rmtree(dirname)
+                except WindowsError as exc:
+                    print 'rmtree failed:', exc
         try:
             os.remove('as-0.out')
         except WindowsError:
@@ -151,6 +154,8 @@ class TestCase(unittest.TestCase):
     def test_component(self):
         logging.debug('')
         logging.debug('test_component')
+
+        # We should get version 0.2 (with directory 'floyd').
         comp = set_as_top(self.factory.create('ASTestComp'))
         comp.set('x', 6)
         comp.set('y', 7)
@@ -163,7 +168,18 @@ class TestCase(unittest.TestCase):
         comp.set('in_file', FileRef(path, comp))
         with comp.dir_context:
             os.remove(path)
+
         comp.run()
+
+        exe_dir = comp.get('exe_dir')
+        if sys.platform == 'win32':
+            expected = r'floyd\\ASTestComp'  # Odd that backslash is repeated.
+        else:
+            expected = os.path.join('floyd', 'ASTestComp')
+        print 'exe_dir', exe_dir
+        print 'expected', expected
+        self.assertTrue(exe_dir.endswith(expected))
+
         self.assertEqual(comp.get('z'), 42.)
         self.assertEqual(comp.get('obj_output.tof'), 2.781828)
         self.assertEqual(comp.get('obj_output.subobj.sof'), 3.14159)

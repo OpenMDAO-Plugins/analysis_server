@@ -43,7 +43,10 @@ class TestCase(unittest.TestCase):
 
         for dirname in ('ASTestComp', 'ASTestComp2', 'logs'):
             if os.path.exists(dirname):
-                shutil.rmtree(dirname)
+                try:
+                    shutil.rmtree(dirname)
+                except WindowsError as exc:
+                    print 'rmtree failed:', exc
         try:
             os.remove('as-0.out')
         except WindowsError:
@@ -259,6 +262,7 @@ version: 7.0, build: 42968"""
 
         expected = [
             ('exe_count', 'PHXLong', 'out'),
+            ('exe_dir', 'PHXString', 'out'),
             ('in_file', 'PHXRawFile', 'in'),
             ('obj_input', 'PHXScriptObject', 'in'),
             ('obj_output', 'PHXScriptObject', 'out'),
