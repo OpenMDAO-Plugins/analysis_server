@@ -33,7 +33,7 @@ by :class:`ConfigParser.SafeConfigParser`, for example::
     # a resource configuration file for the component server to use.
     # Note that the resources file should not end in '.cfg' or it will be
     # interpreted as a component configuration file. Directory is also optional,
-    # it specifies the (relative) directory for the component server to run in.
+    # it specifies the directory for the component server to run in.
     filename: ASTestComp.py
     classname: TestComponent
     resources: pleiades

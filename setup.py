@@ -72,6 +72,7 @@ kwargs = {'author': '',
                                       'sphinx_build/html/_modules/analysis_server/test/test_server.html',
                                       'sphinx_build/html/_modules/analysis_server/test/ASTestComp.html',
                                       'sphinx_build/html/_modules/analysis_server/test/OptComps/RosenSuzuki.html',
+                                      'test/test.tee',
                                       'test/get_hierarchy64.txt',
                                       'test/__init__.py',
                                       'test/test_client.py',
@@ -95,7 +96,7 @@ kwargs = {'author': '',
               'analysis_server.test',
               'analysis_server.test.OptComps'],
  'url': '',
- 'version': '0.6.4',
+ 'version': '0.7',
  'zip_safe': False}
 
 
