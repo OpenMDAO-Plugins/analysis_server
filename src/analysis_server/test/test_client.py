@@ -186,7 +186,7 @@ version: 7.0, build: 42968"""
             'getDirectTransfer',
             'getByUrl <object.property> <url> (NOT IMPLEMENTED)',
             'setByUrl <object.property> = <url> (NOT IMPLEMENTED)',
-            'setDictionary <xml dictionary string> (NOT IMPLEMENTED)',
+            'setDictionary <xml dictionary string> (xml accepted, but not used)',
             'getHierarchy <object.property>',
             'setHierarchy <object.property> <xml>',
             'deleteRunShare <key> (NOT IMPLEMENTED)',

@@ -549,7 +549,7 @@ Available Commands:
    getDirectTransfer
    getByUrl <object.property> <url> (NOT IMPLEMENTED)
    setByUrl <object.property> = <url> (NOT IMPLEMENTED)
-   setDictionary <xml dictionary string> (NOT IMPLEMENTED)
+   setDictionary <xml dictionary string> (xml accepted, but not used)
    getHierarchy <object.property>
    setHierarchy <object.property> <xml>
    deleteRunShare <key> (NOT IMPLEMENTED)
@@ -935,6 +935,21 @@ if __name__ == '__main__':
         self.assertEqual(replies[-1],
                          'ERROR: invalid syntax. Proper syntax:\r\n'
                          'setServerAuthInfo <serverURL> <username> <password>\r\n>')
+
+    def test_set_dictionary(self):
+        xml = '<?xml version="1.0" encoding="UTF-16" standalone="no" ?><document xml:space="preserve"><username>joe</username><password>abracadabra</password><PHXCenterLinkRunId>0</PHXCenterLinkRunId><PHXCenterLinkRunMatrixId>123456</PHXCenterLinkRunMatrixId><PHXModelPart>Model.testComp</PHXModelPart></document>'
+        replies = self.send_recv('setDictionary %s' % xml)
+        self.assertEqual(self.handler._centerlink_dict,
+                         dict(username='joe', password='redacted',
+                              PHXCenterLinkRunId='0',
+                              PHXCenterLinkRunMatrixId='123456',
+                              PHXModelPart='Model.testComp'))
+        self.assertEqual(replies[-1], "<dictionary set>\r\n>")
+
+        replies = self.send_recv('setDictionary')
+        self.assertEqual(replies[-1],
+                         'ERROR: invalid syntax. Proper syntax:\r\n'
+                         'setDictionary <xml dictionary string>\r\n>')
 
     def test_set_hierarchy(self):
         # Grab value of obj_input (big XML string).

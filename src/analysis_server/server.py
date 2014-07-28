@@ -84,6 +84,8 @@ import traceback
 if sys.platform != 'win32':
     import pwd
 
+import xml.etree.cElementTree as ElementTree
+
 from distutils.version import LooseVersion
 from xml.sax.saxutils import escape
 
@@ -515,6 +517,8 @@ class _Handler(SocketServer.BaseRequestHandler):
         # Also avoids odd problems under nose suite test.
         self._server_per_obj = True
 
+        self._centerlink_dict = {}  # Used for testing 'setDictionary'.
+
     def handle(self):
         """ Process any received requests. """
         self._send_reply("""\
@@ -546,8 +550,10 @@ version: %s""" % _VERSION)
                         self._logger.debug('Waiting for request...')
                         req = self._stream.recv_request()
                         trunc = ' (truncated)' if len(req) > _DBG_LEN else ''
-                        self._logger.debug('Request: %r%s',
-                                           req[:_DBG_LEN], trunc)
+                        # Don't log password!
+                        if not req.startswith('setDictionary'):
+                            self._logger.debug('Request: %r%s',
+                                               req[:_DBG_LEN], trunc)
                         self._req_id = None
                         self._background = False
 
@@ -1170,7 +1176,7 @@ Available Commands:
    getDirectTransfer
    getByUrl <object.property> <url> (NOT IMPLEMENTED)
    setByUrl <object.property> = <url> (NOT IMPLEMENTED)
-   setDictionary <xml dictionary string> (NOT IMPLEMENTED)
+   setDictionary <xml dictionary string> (xml accepted, but not used)
    getHierarchy <object.property>
    setHierarchy <object.property> <xml>
    deleteRunShare <key> (NOT IMPLEMENTED)
@@ -1623,6 +1629,38 @@ egg: %s
                         (path, rhs.strip(), self._req_id), {}, None))
 
     _COMMANDS['set'] = _set
+
+
+    def _set_dictionary(self, args):
+        """
+        Set dictionary of key/value pairs. Currently this data is not used,
+        but handling the command is required to run under CenterLink.
+
+        args: list[string]
+            Arguments for the command.
+        """
+        self._logger.debug('Request: setDictionary')
+        cmd, _, xml = self._req.partition(' ')
+        if not xml:
+            self._send_error('invalid syntax. Proper syntax:\n'
+                             'setDictionary <xml dictionary string>')
+            return
+
+        hdr, _, xml = xml.partition('>')  # Drop leading '<?xml stuff ?>'.
+        root = ElementTree.fromstring(xml)
+        data = {}
+        for child in root:
+            tag = child.tag
+            if tag.lower() in ('password',):
+                data[tag] = 'redacted'
+            else:
+                data[tag] = child.text
+            # Only log data after redacting.
+            self._logger.debug('    %r: %r', tag, data[tag])
+        self._centerlink_dict = data
+        self._send_reply('<dictionary set>')
+
+    _COMMANDS['setDictionary'] = _set_dictionary
 
 
     def _set_hierarchy(self, args):
