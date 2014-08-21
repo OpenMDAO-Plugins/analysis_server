@@ -57,5 +57,5 @@ Package Metadata
 
 - **summary:** OpenMDAO interface to Phoenix Integration's ModelCenter/AnalysisServer
 
-- **version:** 0.8
+- **version:** 0.8.1
 

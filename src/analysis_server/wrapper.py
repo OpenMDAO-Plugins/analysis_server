@@ -674,7 +674,7 @@ class ComponentWrapper(object):
                     self._set(var.attrib['name'], valstr, gzipped)
                 except Exception as exc:
                     self._logger.exception("Can't set %r", var.attrib['name'])
-                    raise type(exc)("Can't set %r from %r: %s" 
+                    raise type(exc)("Can't set %r from %r: %s"
                                     % (var.attrib['name'], valstr[:1000], exc))
             self._send_reply('values set', req_id)
         except Exception as exc:
@@ -1337,6 +1337,15 @@ class FileWrapper(BaseWrapper):
         self._owner = None
 
     @property
+    def binary(self):
+        """ True if this file is binary. """
+        file_ref = self._container.get(self._name)
+        if file_ref is None:  # Look for optional 'binary' metadata.
+            return getattr(self._trait, 'binary', False)
+        else:  # Use FileRef value.
+            return file_ref.binary
+
+    @property
     def phx_type(self):
         """ AnalysisServer type string for value. """
         return 'com.phoenix_int.aserver.types.PHXRawFile'
@@ -1383,14 +1392,12 @@ class FileWrapper(BaseWrapper):
                     return ''
                 else:
                     raise
+            if file_ref.binary:
+                return base64.b64encode(data)
             else:
                 return data.encode('string_escape')
         elif attr == 'isBinary':
-            file_ref = self._container.get(self._name)
-            if file_ref is None:
-                return 'false'
-            else:
-                return 'true' if file_ref.binary else 'false'
+            return 'true' if self.binary else 'false'
         elif attr == 'mimeType':
             file_ref = self._container.get(self._name)
             if file_ref is None:
@@ -1427,14 +1434,9 @@ class FileWrapper(BaseWrapper):
             if file_ref is None:
                 data = ''
             else:
-                data = cStringIO.StringIO()
                 try:
                     with file_ref.open() as inp:
-                        inp_data = inp.read()
-                        if file_ref.binary:
-                            inp_data = base64.b64encode(inp_data)
-                        with gzip.GzipFile(mode='wb', fileobj=data) as gz_file:
-                            gz_file.write(inp_data)
+                        data = inp.read()
                 except IOError as exc:
                     self._logger.warning('get %s.value: %r',
                                          self._ext_path, exc)
@@ -1447,16 +1449,23 @@ class FileWrapper(BaseWrapper):
                     else:
                         raise
                 else:
-                    data = base64.b64encode(data.getvalue())
-                    chunks = []
+                    if file_ref.binary:
+                        zipped = ''
+                    else:
+                        gz_data = cStringIO.StringIO()
+                        with gzip.GzipFile(mode='wb', fileobj=gz_data) as gz_file:
+                            gz_file.write(data)
+                        data = gz_data.getvalue()
+                        zipped = ' gzipped="true"'
+                data = base64.b64encode(data)
+                chunks = []
+                chunk = data[:76]
+                while chunk:
+                    chunks.append(chunk)
+                    data = data[76:]
                     chunk = data[:76]
-                    while chunk:
-                        chunks.append(chunk)
-                        data = data[76:]
-                        chunk = data[:76]
-                    chunks.append('')
-                    data = '\n'.join(chunks)
-            zipped = ' gzipped="true"'
+                chunks.append('')
+                data = '\n'.join(chunks)
         else:
             data = escape(self.get('value', self._ext_path))
             zipped = ''
@@ -1495,21 +1504,26 @@ class FileWrapper(BaseWrapper):
             if not os.path.isabs(filename):
                 filename = os.path.join(self._owner.get_abs_directory(),
                                         filename)
+            binary = self.binary
             if gzipped:
-                data = cStringIO.StringIO(self._decode(valstr))
-                gz_file = gzip.GzipFile(mode='rb', fileobj=data)
-                valstr = gz_file.read()
+                valstr = self._decode(valstr)
+                if not binary:
+                    valstr = cStringIO.StringIO(valstr)
+                    gz_file = gzip.GzipFile(mode='rb', fileobj=valstr)
+                    valstr = gz_file.read()
             else:
-                valstr = valstr.strip('"').decode('string_escape')
-
-            mode = 'wb'
+                if binary:
+                    valstr = self._decode(valstr)
+                else:
+                    valstr = valstr.strip('"').decode('string_escape')
+            mode = 'wb' if binary else 'w'
             if self._server is None:  # Used during testing.
                 with open(filename, mode) as out:
                     out.write(valstr)
             else:  # pragma no cover
                 with self._server.open(filename, mode) as out:
                     out.write(valstr)
-            file_ref = FileRef(filename, owner=self._owner)
+            file_ref = FileRef(filename, owner=self._owner, binary=binary)
             self._container.set(self._name, file_ref)
         elif attr in ('description', 'isBinary', 'mimeType',
                       'name', 'nameCoded', 'url'):
