@@ -1346,6 +1346,18 @@ class FileWrapper(BaseWrapper):
             return file_ref.binary
 
     @property
+    def filename(self):
+        """ Name of file, either from FileRef, local_path, or default_name. """
+        file_ref = self._container.get(self._name)
+        if file_ref is None:  # Look for optional metadata.
+            name = getattr(self._trait, 'local_path', '')
+            if not name:
+                name = getattr(self._trait, 'default_name', '')
+        else:  # Use FileRef value.
+            name = file_ref.path
+        return name
+
+    @property
     def phx_type(self):
         """ AnalysisServer type string for value. """
         return 'com.phoenix_int.aserver.types.PHXRawFile'
@@ -1410,11 +1422,9 @@ class FileWrapper(BaseWrapper):
             else:
                 return 'text/plain'
         elif attr == 'name':
-            file_ref = self._container.get(self._name)
-            return '' if file_ref is None else file_ref.path
+            return self.filename
         elif attr == 'nameCoded':
-            file_ref = self._container.get(self._name)
-            return '' if file_ref is None else file_ref.path
+            return self.filename
         elif attr == 'url':
             return ''
         else:
@@ -1428,30 +1438,26 @@ class FileWrapper(BaseWrapper):
             If True, file data is gzipped and then base64 encoded.
         """
         file_ref = self._container.get(self._name)
-        filename = '' if file_ref is None else file_ref.path
+        filename = self.filename
+        data = zipped = ''
+
         if gzipped:
             file_ref = self._container.get(self._name)
-            if file_ref is None:
-                data = ''
-            else:
+            if file_ref is not None:
                 try:
                     with file_ref.open() as inp:
                         data = inp.read()
                 except IOError as exc:
                     self._logger.warning('get %s.value: %r',
                                          self._ext_path, exc)
-                    data = ''
                 except RemoteError as exc:
                     if 'IOError' in str(exc):
                         self._logger.warning('get %s.value: %r',
                                              self._ext_path, exc)
-                        data = ''
                     else:
                         raise
                 else:
-                    if file_ref.binary:
-                        zipped = ''
-                    else:
+                    if not file_ref.binary:
                         gz_data = cStringIO.StringIO()
                         with gzip.GzipFile(mode='wb', fileobj=gz_data) as gz_file:
                             gz_file.write(data)
@@ -1468,7 +1474,6 @@ class FileWrapper(BaseWrapper):
                 data = '\n'.join(chunks)
         else:
             data = escape(self.get('value', self._ext_path))
-            zipped = ''
 
         return '<Variable name="%s" type="file" io="%s" description=%s' \
                ' isBinary="%s" fileName="%s"%s>%s</Variable>' \
