@@ -1782,12 +1782,14 @@ egg: %s
                 # If resources specified, configure server.
                 if resources:
                     basename = os.path.basename(resources)
-                    filexfer(None, resources, server, basename)
+                    filexfer(None, resources, server, basename,
+                             set_permissions=False)
                     server.config_ram(basename)
 
                 # Transfer egg to it and load.
                 egg_name = os.path.basename(egg_file)
-                filexfer(None, egg_file, server, egg_name, 'b')
+                filexfer(None, egg_file, server, egg_name, 'b',
+                         set_permissions=False)
                 obj = server.load_model(egg_name)
             else:  # Used for testing.
                 server = None
