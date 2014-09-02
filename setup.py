@@ -96,7 +96,7 @@ kwargs = {'author': '',
               'analysis_server.test',
               'analysis_server.test.OptComps'],
  'url': '',
- 'version': '0.8.2',
+ 'version': '0.8.3',
  'zip_safe': False}
 
 
