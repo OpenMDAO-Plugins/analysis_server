@@ -6,6 +6,9 @@ Usage Guide
 The ``analysis_server`` package provides both client and server sides of
 communication compatible with Phoenix Integration's Analysis Server.
 
+*Client*
+________
+
 As a client, an instance of :class:`factory.ASFactory` must be created,
 referring to the host and port of the remote AnalysisServer to connect to.
 This factory is then registered with OpenMDAO via
@@ -26,6 +29,9 @@ For example, to use a ``RemoteComponent``::
     comp.run()
     print 'result:', comp.output_var
 
+
+*Server*
+________
 
 When this package is used as a server, ModelCenter can access OpenMDAO
 components. To do this ``server.py`` is started in a directory containing
@@ -136,7 +142,9 @@ When transferring binary file data back to ModelCenter via a File variable,
 it's important that the binary nature be flagged before execution because
 ModelCenter will use the binary indicator to alter how the file data is
 processed when read back.  If you don't, the data is returned to ModelCenter,
-but it will be stored in ``base64`` format.
+but it will be stored in ``base64`` format.  Also, if you need to link to
+a ModelCenter file variable, the binary flag is necessary before linking
+so that ModelCenter knows that the binary->binary link is valid.
 
 One way to get the binary indicator set is to initialize the File variable
 with a FileRef describing the file (even if the file doesn't exist yet)::
@@ -151,7 +159,17 @@ with a FileRef describing the file (even if the file doesn't exist yet)::
 
         def execute(self):
             # Add code which causes the files to be created.
-            pass
+            super(FileComponent, self).execute()
+
+.. note::
+
+    If you'd rather not have a default FileRef value, you can use metadata
+    on the File variable.  For input files, 'local_path' or 'default_name'
+    can set the filename.  For output files only 'default_name' is legal.
+    You can use 'binary' for either input or output.
+
+    Do not use both a default FileRef and 'local_path' for an input.  This
+    will cause an exception when the instance is created.
 
 If you happen to forget to do this and end up with the base64 data, the code
 below will decode the file.  Note that due to a ModelCenter quirk (at least as
@@ -179,4 +197,69 @@ well-formed.  This code handles that problem::
             with open(sys.argv[2], 'wb') as out:
                 out.write(decoded)
             break
+
+*Viewing Files*
+_______________
+
+For ModelCenter to support viewing your files it needs a filename with
+the extension so it can determine what application should view the file.
+If you create a file variable in ModelCenter, be sure to 'load' the variable
+from some existing file with the same extension as the real data will be.
+ModelCenter (at least as of version 10) does not detect the filename at
+runtime.  Even for output files, just load something with the correct
+extension when creating the variable and your output data will be viewable.
+
+*Directories*
+_____________
+
+Normally the server just creates scratch directories with names like ``Sim-1``.
+This can be confusing if for some reason you need to look into what's stored
+in a particular component's working directory.  You can specify a working
+directory for a component class in it's configuration file.  But this is
+inconvenient if you have more than one instance of a class.  As a workaround
+you could define derived classes, one per instance.  Then each derived class
+gets its own configuration file, so now each instance can have a specified
+directory.
+
+.. note::
+
+    Your component's execution directory is a subdirectory of the directory
+    described above.  This is due to how eggs are deployed.
+
+*Integration with NAS*
+______________________
+
+If you're using analysis_server so that ModelCenter can run simulations at
+NAS (NASA Advanced Supercomputing) you'll need to specify a ``resources``
+entry in the component's configuration file.  Something like this::
+
+    [Description]
+    version: 0.1
+
+    [Python]
+    filename: cart3d.py
+    classname: Cart3D
+    resources: Pleiades.txt
+    directory: Sim-Cart3D
+
+    [Inputs]
+    *: *
+
+    [Outputs]
+    *: *
+
+    [Methods]
+    *: *
+
+where ``Pleiades.txt`` looks like::
+
+    [Pleiades]
+    classname: nas_access.NAS_Allocator
+    dmz_host: dmzfs1.nas.nasa.gov
+    server_host: pfe25
+
+Now when the server starts a sub-server for the Cart3D component, it will
+configure the sub-server to have the NAS allocator available.  An
+:class:`ExternalCode` object can use this in its resources dictionary to cause
+the code to run at NAS.
 
