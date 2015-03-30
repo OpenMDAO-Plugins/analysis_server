@@ -144,6 +144,9 @@ class TestCase(unittest.TestCase):
                 self.fail('%d reply lines, %d expected lines'
                       % (len(reply_lines), len(expected_lines)))
             expected_line = expected_lines[i]
+            print i
+            print reply_line
+            print expected_line
             if reply_line.startswith('classURL'): # installation-specific
                 if not expected_line.startswith('classURL'):
                     self.fail('Line %d: %r vs. %r'

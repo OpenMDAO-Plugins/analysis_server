@@ -33,8 +33,8 @@ from openmdao.main.api import Container
 from openmdao.main.attrwrapper import AttrWrapper
 from openmdao.main.mp_support import is_instance
 
-from openmdao.lib.datatypes.api import Array, Bool, Enum, File, FileRef, \
-                                       Float, Int, List, Str, VarTree
+from openmdao.main.datatypes.api import Array, Bool, Enum, File, FileRef, \
+                                        Float, Int, List, Str, VarTree
 
 from analysis_server.monitor import FileMonitor
 from analysis_server.objxml import get_as_xml, set_from_xml
